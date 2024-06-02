@@ -1,0 +1,21 @@
+database:
+  host:
+  port: 
+  name:
+  user: 
+  password: 
+  sslmode:
+  timezone: 
+
+app:
+  port: 
+  host: 
+
+token:
+  secretKey: 
+  duration: 
+
+cloudinary:
+  name:
+  apiKey:
+  apiSecret: 
