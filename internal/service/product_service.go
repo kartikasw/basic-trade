@@ -3,6 +3,7 @@ package service
 import (
 	"basic-trade/internal/entity"
 	"basic-trade/internal/repository"
+	"fmt"
 
 	"github.com/google/uuid"
 
@@ -14,7 +15,7 @@ type ProductService struct {
 }
 
 type IProductService interface {
-	CreateProduct(product entity.Product) (entity.Product, error)
+	CreateProduct(product entity.Product, uuidAdm uuid.UUID) (entity.Product, error)
 	GetProduct(uuid uuid.UUID) (entity.Product, error)
 	GetAllProducts(offset int32, limit int32) ([]entity.Product, error)
 	SearchProducts(key string, offset int32, limit int32) ([]entity.Product, error)
@@ -26,18 +27,18 @@ func NewProductService(productRepo repository.IProductRepository) *ProductServic
 	return &ProductService{productRepo: productRepo}
 }
 
-func (s *ProductService) CreateProduct(product entity.Product) (entity.Product, error) {
+func (s *ProductService) CreateProduct(product entity.Product, uuidAdm uuid.UUID) (entity.Product, error) {
 	arg := sqlc.CreateProductParams{
 		Name:     product.Name,
 		ImageUrl: product.ImageURL,
 	}
 
-	result, err := s.productRepo.CreateProduct(arg, product.AdminUUID)
+	result, err := s.productRepo.CreateProduct(arg, uuidAdm)
 	if err != nil {
 		return entity.Product{}, err
 	}
 
-	return entity.CreateProductToViewModel(&result, product.AdminUUID), err
+	return entity.CreateProductToViewModel(&result), err
 }
 
 func (s *ProductService) GetProduct(uuid uuid.UUID) (entity.Product, error) {
@@ -46,7 +47,9 @@ func (s *ProductService) GetProduct(uuid uuid.UUID) (entity.Product, error) {
 		return entity.Product{}, err
 	}
 
-	return entity.GetProductToViewModel(&result), err
+	fmt.Println("GetProduct, result=", result)
+
+	return entity.ProductViewToViewModel(&result), err
 }
 
 func (s *ProductService) GetAllProducts(offset int32, limit int32) ([]entity.Product, error) {
@@ -59,12 +62,12 @@ func (s *ProductService) GetAllProducts(offset int32, limit int32) ([]entity.Pro
 		return []entity.Product{}, err
 	}
 
-	return entity.ListProductToViewModel(result), err
+	return entity.ListProductViewToViewModel(result), err
 }
 
 func (s *ProductService) SearchProducts(key string, offset int32, limit int32) ([]entity.Product, error) {
 	arg := sqlc.ListProductsParams{
-		Search: true,
+		Keyword: key,
 		Limit:  limit,
 		Offset: offset,
 	}
@@ -73,7 +76,7 @@ func (s *ProductService) SearchProducts(key string, offset int32, limit int32) (
 		return []entity.Product{}, err
 	}
 
-	return entity.ListProductToViewModel(result), err
+	return entity.ListProductViewToViewModel(result), err
 }
 
 func (s *ProductService) UpdateProduct(product entity.Product) (entity.Product, error) {

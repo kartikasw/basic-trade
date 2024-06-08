@@ -3,3 +3,14 @@
 //   sqlc v1.26.0
 
 package repository
+
+import (
+	"github.com/google/uuid"
+)
+
+type ProductView struct {
+	Uuid     uuid.UUID   `json:"uuid"`
+	Name     string      `json:"name"`
+	ImageUrl string      `json:"image_url"`
+	Variants interface{} `json:"variants"`
+}

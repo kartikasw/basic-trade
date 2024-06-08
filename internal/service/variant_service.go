@@ -65,9 +65,9 @@ func (s *VariantService) GetAllVariants(offset int32, limit int32) ([]entity.Var
 
 func (s *VariantService) SearchVariants(key string, offset int32, limit int32) ([]entity.Variant, error) {
 	arg := sqlc.ListVariantsParams{
-		Search: true,
-		Limit:  limit,
-		Offset: offset,
+		Keyword: key,
+		Limit:   limit,
+		Offset:  offset,
 	}
 
 	result, err := s.variantRepo.GetAllVariants(arg)

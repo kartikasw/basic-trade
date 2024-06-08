@@ -2,11 +2,15 @@ package api
 
 import (
 	"basic-trade/api/middleware"
+	"basic-trade/common"
 	"basic-trade/internal/handler"
 	"basic-trade/internal/repository"
 	"basic-trade/pkg/token"
+	"basic-trade/pkg/validation"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
+	"github.com/go-playground/validator/v10"
 )
 
 type Server struct {
@@ -32,6 +36,13 @@ func NewServer(
 		variantHandler: variantHandler,
 		authorization:  *middleware.NewAuthorizationMiddleware(adminRepo),
 	}
+
+	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
+		v.RegisterValidation("validImage", validation.ValidImage)
+		v.RegisterValidation("validUUID", validation.ValidUUID)
+
+	}
+
 	server.setupRouter()
 	return server
 }
@@ -39,7 +50,7 @@ func NewServer(
 func (server *Server) setupRouter() {
 	router := gin.Default()
 
-	router.MaxMultipartMemory = 5 << 20
+	router.MaxMultipartMemory = common.MaxFileSize
 
 	router.POST("/auth/register", server.authHandler.Register)
 	router.POST("/auth/login", server.authHandler.Login)

@@ -36,24 +36,26 @@ func NewApp(v *viper.Viper) App {
 }
 
 type Database struct {
-	Name     string
-	Host     string
-	Port     int
-	Password string
-	User     string
-	Timezone string
-	SslMode  string
+	Name         string
+	Host         string
+	Port         int
+	Password     string
+	User         string
+	Timezone     string
+	SslMode      string
+	MigrationURL string
 }
 
 func NewDatabase(v *viper.Viper) Database {
 	return Database{
-		Name:     v.GetString("database.name"),
-		Host:     v.GetString("database.host"),
-		Port:     v.GetInt("database.port"),
-		Password: v.GetString("database.password"),
-		User:     v.GetString("database.user"),
-		Timezone: v.GetString("database.timezone"),
-		SslMode:  v.GetString("database.sslmode"),
+		Name:         v.GetString("database.name"),
+		Host:         v.GetString("database.host"),
+		Port:         v.GetInt("database.port"),
+		Password:     v.GetString("database.password"),
+		User:         v.GetString("database.user"),
+		Timezone:     v.GetString("database.timezone"),
+		SslMode:      v.GetString("database.sslmode"),
+		MigrationURL: v.GetString("database.migrationURL"),
 	}
 }
 

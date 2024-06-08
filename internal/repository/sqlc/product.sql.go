@@ -51,25 +51,19 @@ func (q *Queries) DeleteProduct(ctx context.Context, argUuid uuid.UUID) error {
 }
 
 const getProduct = `-- name: GetProduct :one
-SELECT id, uuid, name, image_url FROM products
-WHERE uuid = $1 LIMIT 1
+SELECT uuid, name, image_url, variants FROM product__view
+WHERE uuid = $1 
+LIMIT 1
 `
 
-type GetProductRow struct {
-	ID       int64     `json:"id"`
-	Uuid     uuid.UUID `json:"uuid"`
-	Name     string    `json:"name"`
-	ImageUrl string    `json:"image_url"`
-}
-
-func (q *Queries) GetProduct(ctx context.Context, argUuid uuid.UUID) (GetProductRow, error) {
+func (q *Queries) GetProduct(ctx context.Context, argUuid uuid.UUID) (ProductView, error) {
 	row := q.db.QueryRow(ctx, getProduct, argUuid)
-	var i GetProductRow
+	var i ProductView
 	err := row.Scan(
-		&i.ID,
 		&i.Uuid,
 		&i.Name,
 		&i.ImageUrl,
+		&i.Variants,
 	)
 	return i, err
 }
@@ -93,42 +87,47 @@ func (q *Queries) GetProductForUpdate(ctx context.Context, argUuid uuid.UUID) (G
 	return i, err
 }
 
+const getProductID = `-- name: GetProductID :one
+SELECT id FROM products
+WHERE uuid = $1 
+LIMIT 1
+`
+
+func (q *Queries) GetProductID(ctx context.Context, argUuid uuid.UUID) (int64, error) {
+	row := q.db.QueryRow(ctx, getProductID, argUuid)
+	var id int64
+	err := row.Scan(&id)
+	return id, err
+}
+
 const listProducts = `-- name: ListProducts :many
-SELECT uuid, name, image_url FROM products
-WHERE $4::bool AND name LIKE $1
-ORDER BY created_at DESC
-LIMIT $2
-OFFSET $3
+SELECT uuid, name, image_url, variants FROM product__view
+WHERE (COALESCE($3::text, '') = '' OR name_search @@ to_tsquery($3::text))
+LIMIT $1
+OFFSET $2
 `
 
 type ListProductsParams struct {
-	Name   string `json:"name"`
-	Limit  int32  `json:"limit"`
-	Offset int32  `json:"offset"`
-	Search bool   `json:"search"`
+	Limit   int32  `json:"limit"`
+	Offset  int32  `json:"offset"`
+	Keyword string `json:"keyword"`
 }
 
-type ListProductsRow struct {
-	Uuid     uuid.UUID `json:"uuid"`
-	Name     string    `json:"name"`
-	ImageUrl string    `json:"image_url"`
-}
-
-func (q *Queries) ListProducts(ctx context.Context, arg ListProductsParams) ([]ListProductsRow, error) {
-	rows, err := q.db.Query(ctx, listProducts,
-		arg.Name,
-		arg.Limit,
-		arg.Offset,
-		arg.Search,
-	)
+func (q *Queries) ListProducts(ctx context.Context, arg ListProductsParams) ([]ProductView, error) {
+	rows, err := q.db.Query(ctx, listProducts, arg.Limit, arg.Offset, arg.Keyword)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []ListProductsRow{}
+	items := []ProductView{}
 	for rows.Next() {
-		var i ListProductsRow
-		if err := rows.Scan(&i.Uuid, &i.Name, &i.ImageUrl); err != nil {
+		var i ProductView
+		if err := rows.Scan(
+			&i.Uuid,
+			&i.Name,
+			&i.ImageUrl,
+			&i.Variants,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

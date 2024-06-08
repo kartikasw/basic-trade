@@ -37,6 +37,7 @@ FROM admins
 JOIN products ON admins.id = products.admin_id
 JOIN variants ON products.id = variants.product_id
 WHERE admins.uuid = $1::uuid AND variants.uuid = $2::uuid
+LIMIT 1
 `
 
 type CheckVariantFromAdminParams struct {
@@ -59,7 +60,7 @@ INSERT INTO admins (
 ) VALUES (
     $1, $2, $3
 )
-RETURNING uuid, name, email, password
+RETURNING id, uuid, name, email, password
 `
 
 type CreateAdminParams struct {
@@ -69,6 +70,7 @@ type CreateAdminParams struct {
 }
 
 type CreateAdminRow struct {
+	ID       int64     `json:"id"`
 	Uuid     uuid.UUID `json:"uuid"`
 	Name     string    `json:"name"`
 	Email    string    `json:"email"`
@@ -79,6 +81,7 @@ func (q *Queries) CreateAdmin(ctx context.Context, arg CreateAdminParams) (Creat
 	row := q.db.QueryRow(ctx, createAdmin, arg.Name, arg.Email, arg.Password)
 	var i CreateAdminRow
 	err := row.Scan(
+		&i.ID,
 		&i.Uuid,
 		&i.Name,
 		&i.Email,

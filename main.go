@@ -16,7 +16,6 @@ import (
 
 func main() {
 	cfg := config.LoadConfig("app.yaml")
-	fmt.Println("cfg: ", cfg)
 
 	connPool, err := database.InitDB(cfg.Database)
 	if err != nil {
@@ -33,6 +32,7 @@ func main() {
 	authHandler := handler.NewAuthHandler(authService)
 
 	cld, err := cloudinary.NewFromParams(cfg.Cloudinary.Name, cfg.Cloudinary.ApiKey, cfg.Cloudinary.ApiSecret)
+	cld.Config.URL.Secure = true
 	if err != nil {
 		log.Fatalf("Couldn't create cloudinary environment: %v", err)
 	}

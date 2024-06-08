@@ -23,7 +23,6 @@ func NewJWTMaker(secretKey string) (*JWTMaker, error) {
 }
 
 func (maker *JWTMaker) CreateToken(uuid uuid.UUID, duration time.Duration) (string, *Payload, error) {
-	fmt.Println("CreateToken with duration: ", duration)
 	payload, err := NewPayload(uuid, duration)
 	if err != nil {
 		return "", payload, err

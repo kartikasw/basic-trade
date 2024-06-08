@@ -15,8 +15,8 @@ type ProductRepository struct {
 
 type IProductRepository interface {
 	CreateProduct(arg sqlc.CreateProductParams, uuidAdm uuid.UUID) (sqlc.CreateProductRow, error)
-	GetProduct(uuid uuid.UUID) (sqlc.GetProductRow, error)
-	GetAllProducts(arg sqlc.ListProductsParams) ([]sqlc.ListProductsRow, error)
+	GetProduct(uuid uuid.UUID) (sqlc.ProductView, error)
+	GetAllProducts(arg sqlc.ListProductsParams) ([]sqlc.ProductView, error)
 	UpdateProduct(arg sqlc.UpdateAProductParams) (sqlc.UpdateAProductRow, error)
 	DeleteProduct(uuid uuid.UUID) error
 }
@@ -52,13 +52,13 @@ func (r *ProductRepository) CreateProduct(arg sqlc.CreateProductParams, uuidAdm 
 	return result, err
 }
 
-func (r *ProductRepository) GetProduct(uuid uuid.UUID) (sqlc.GetProductRow, error) {
+func (r *ProductRepository) GetProduct(uuid uuid.UUID) (sqlc.ProductView, error) {
 	result, err := r.store.GetProduct(context.Background(), uuid)
 
 	return result, err
 }
 
-func (r *ProductRepository) GetAllProducts(arg sqlc.ListProductsParams) ([]sqlc.ListProductsRow, error) {
+func (r *ProductRepository) GetAllProducts(arg sqlc.ListProductsParams) ([]sqlc.ProductView, error) {
 	result, err := r.store.ListProducts(context.Background(), arg)
 
 	return result, err

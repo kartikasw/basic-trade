@@ -18,9 +18,9 @@ func NewAuthHandler(authService service.IAuthService) *AuthHandler {
 }
 
 type registerRequest struct {
-	Name     string `json:"name" binding:"required,max=100"`
-	Email    string `json:"email" binding:"required,email"`
-	Password string `json:"password" binding:"required,min=8"`
+	Name     string `form:"name" binding:"required,max=100"`
+	Email    string `form:"email" binding:"required,email"`
+	Password string `form:"password" binding:"required,min=8"`
 }
 
 type adminResponse struct {
@@ -57,8 +57,8 @@ func (h *AuthHandler) Register(ctx *gin.Context) {
 }
 
 type loginRequest struct {
-	Email    string `json:"email" binding:"required"`
-	Password string `json:"password" binding:"required"`
+	Email    string `form:"email" binding:"required"`
+	Password string `form:"password" binding:"required"`
 }
 
 type loginResponse struct {

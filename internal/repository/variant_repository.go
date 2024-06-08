@@ -30,12 +30,12 @@ func (r *VariantRepository) CreateVariant(arg sqlc.CreateVariantParams, uuidPrd 
 	var result sqlc.CreateVariantRow
 
 	err := r.store.ExecTx(ctx, func(q *sqlc.Queries) error {
-		prd, err := r.store.GetProduct(ctx, uuidPrd)
+		prdID, err := r.store.GetProductID(ctx, uuidPrd)
 		if err != nil {
 			return err
 		}
 
-		arg.ProductID = prd.ID
+		arg.ProductID = prdID
 		result, err = r.store.CreateVariant(context.Background(), arg)
 		if err != nil {
 			return err

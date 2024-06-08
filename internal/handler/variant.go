@@ -20,14 +20,14 @@ func NewVariantHandler(variantService service.IVariantService) *VariantHandler {
 }
 
 type createVariantRequest struct {
-	VariantName string    `json:"variant_name" binding:"required,max=100"`
-	Quantity    int32     `json:"quantity" binding:"required"`
-	ProductID   uuid.UUID `json:"product_id" binding:"required,uuid4"`
+	VariantName string `form:"variant_name" binding:"required,max=100"`
+	Quantity    int32  `form:"quantity" binding:"required"`
+	ProductID   string `form:"product_id" binding:"required,validUUID"`
 }
 
 type updateVariantRequest struct {
-	VariantName string `json:"variant_name" binding:"max=100"`
-	Quantity    int32  `json:"quantity"`
+	VariantName string `form:"variant_name" binding:"max=100"`
+	Quantity    int32  `form:"quantity" binding:"required"`
 }
 
 func (h *VariantHandler) CreateVariant(ctx *gin.Context) {
@@ -42,7 +42,13 @@ func (h *VariantHandler) CreateVariant(ctx *gin.Context) {
 		Quantity:    req.Quantity,
 	}
 
-	result, err := h.variantService.CreateVariant(arg, req.ProductID)
+	uuid, err := uuid.Parse(req.ProductID)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, response.ErrorResponse(err))
+		return
+	}
+
+	result, err := h.variantService.CreateVariant(arg, uuid)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, response.ErrorResponse(err))
 	}
@@ -57,7 +63,13 @@ func (h *VariantHandler) GetVariant(ctx *gin.Context) {
 		return
 	}
 
-	result, err := h.variantService.GetVariant(req.UUID)
+	uuid, err := uuid.Parse(req.UUID)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, response.ErrorResponse(err))
+		return
+	}
+
+	result, err := h.variantService.GetVariant(uuid)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, response.ErrorResponse(err))
 	}
@@ -108,8 +120,14 @@ func (h *VariantHandler) UpdateVariant(ctx *gin.Context) {
 		return
 	}
 
+	uuid, err := uuid.Parse(idReq.UUID)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, response.ErrorResponse(err))
+		return
+	}
+
 	arg := entity.Variant{
-		UUID:        idReq.UUID,
+		UUID:        uuid,
 		VariantName: variantReq.VariantName,
 		Quantity:    variantReq.Quantity,
 	}
@@ -129,7 +147,13 @@ func (h *VariantHandler) DeleteVariant(ctx *gin.Context) {
 		return
 	}
 
-	err := h.variantService.DeleteVariant(req.UUID)
+	uuid, err := uuid.Parse(req.UUID)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, response.ErrorResponse(err))
+		return
+	}
+
+	err = h.variantService.DeleteVariant(uuid)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, response.ErrorResponse(err))
 	}

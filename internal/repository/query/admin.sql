@@ -6,7 +6,7 @@ INSERT INTO admins (
 ) VALUES (
     $1, $2, $3
 )
-RETURNING uuid, name, email, password;
+RETURNING id, uuid, name, email, password;
 
 -- name: GetAdmin :one
 SELECT id, uuid, name, email, password FROM admins
@@ -25,4 +25,5 @@ SELECT variants.uuid
 FROM admins
 JOIN products ON admins.id = products.admin_id
 JOIN variants ON products.id = variants.product_id
-WHERE admins.uuid = sqlc.arg(admin_uuid)::uuid AND variants.uuid = sqlc.arg(variant_uuid)::uuid;
+WHERE admins.uuid = sqlc.arg(admin_uuid)::uuid AND variants.uuid = sqlc.arg(variant_uuid)::uuid
+LIMIT 1;

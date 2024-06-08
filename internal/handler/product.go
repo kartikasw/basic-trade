@@ -12,6 +12,7 @@ import (
 
 	"github.com/cloudinary/cloudinary-go/v2"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 type ProductHandler struct {
@@ -28,7 +29,7 @@ func NewProductHandler(productService service.IProductService, cld *cloudinary.C
 
 type createProductRequest struct {
 	Name  string                `form:"name" binding:"required,max=100"`
-	Image *multipart.FileHeader `form:"image" binding:"required,file,image"`
+	Image *multipart.FileHeader `form:"image" binding:"required,validImage"`
 }
 
 type updateProductRequest struct {
@@ -43,19 +44,19 @@ func (h *ProductHandler) CreateProduct(ctx *gin.Context) {
 		return
 	}
 
-	imageURL, err := h.fileService.UploadImage(req.Image)
+	authPayload := ctx.MustGet(middleware.AuthorizationPayloadKey).(*token.Payload)
+
+	imageURL, err := h.fileService.UploadImage(authPayload.UUID.String(), req.Image)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, response.ErrorResponse(err))
 	}
 
-	authPayload := ctx.MustGet(middleware.AuthorizationPayloadKey).(*token.Payload)
 	arg := entity.Product{
-		Name:      req.Name,
-		AdminUUID: authPayload.UUID,
-		ImageURL:  imageURL,
+		Name:     req.Name,
+		ImageURL: imageURL,
 	}
 
-	result, err := h.productService.CreateProduct(arg)
+	result, err := h.productService.CreateProduct(arg, authPayload.UUID)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, response.ErrorResponse(err))
 	}
@@ -70,7 +71,13 @@ func (h *ProductHandler) GetProduct(ctx *gin.Context) {
 		return
 	}
 
-	result, err := h.productService.GetProduct(req.UUID)
+	uuid, err := uuid.Parse(req.UUID)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, response.ErrorResponse(err))
+		return
+	}
+
+	result, err := h.productService.GetProduct(uuid)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, response.ErrorResponse(err))
 	}
@@ -111,32 +118,33 @@ func (h *ProductHandler) SearchProducts(ctx *gin.Context) {
 func (h *ProductHandler) UpdateProduct(ctx *gin.Context) {
 	var idReq request.GetDataByUUIDRequest
 
-	var err error
-
-	if err = ctx.ShouldBindUri(&idReq); err != nil {
+	if err := ctx.ShouldBindUri(&idReq); err != nil {
 		ctx.JSON(http.StatusBadRequest, response.ErrorResponse(err))
 		return
 	}
 
 	var productReq updateProductRequest
-	if err = ctx.ShouldBindJSON(&productReq); err != nil {
+	if err := ctx.ShouldBindJSON(&productReq); err != nil {
 		ctx.JSON(http.StatusBadRequest, response.ErrorResponse(err))
 		return
 	}
 
+	authPayload := ctx.MustGet(middleware.AuthorizationPayloadKey).(*token.Payload)
+
 	var imageURL string
 	if productReq.Image != nil {
-		imageURL, err = h.fileService.UploadImage(productReq.Image)
-		if err != nil {
-			ctx.JSON(http.StatusInternalServerError, response.ErrorResponse(err))
-		}
+		imageURL, _ = h.fileService.UploadImage(authPayload.UUID.String(), productReq.Image)
 	}
 
-	authPayload := ctx.MustGet(middleware.AuthorizationPayloadKey).(*token.Payload)
+	uuid, err := uuid.Parse(idReq.UUID)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, response.ErrorResponse(err))
+		return
+	}
+
 	arg := entity.Product{
-		UUID:      idReq.UUID,
-		Name:      productReq.Name,
-		AdminUUID: authPayload.UUID,
+		UUID:     uuid,
+		Name:     productReq.Name,
 		ImageURL: imageURL,
 	}
 
@@ -155,7 +163,13 @@ func (h *ProductHandler) DeleteProduct(ctx *gin.Context) {
 		return
 	}
 
-	err := h.productService.DeleteProduct(req.UUID)
+	uuid, err := uuid.Parse(req.UUID)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, response.ErrorResponse(err))
+		return
+	}
+
+	err = h.productService.DeleteProduct(uuid)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, response.ErrorResponse(err))
 	}

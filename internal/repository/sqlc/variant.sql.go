@@ -95,17 +95,16 @@ func (q *Queries) GetVariantForUpdate(ctx context.Context, argUuid uuid.UUID) (G
 
 const listVariants = `-- name: ListVariants :many
 SELECT uuid, variant_name, quantity FROM variants
-WHERE $4::bool AND variant_name LIKE $1
+WHERE (COALESCE($3::text, '') = '' OR variant_name_search @@ to_tsquery($3::text))
 ORDER BY created_at DESC
-LIMIT $2
-OFFSET $3
+LIMIT $1
+OFFSET $2
 `
 
 type ListVariantsParams struct {
-	VariantName string `json:"variant_name"`
-	Limit       int32  `json:"limit"`
-	Offset      int32  `json:"offset"`
-	Search      bool   `json:"search"`
+	Limit   int32  `json:"limit"`
+	Offset  int32  `json:"offset"`
+	Keyword string `json:"keyword"`
 }
 
 type ListVariantsRow struct {
@@ -115,12 +114,7 @@ type ListVariantsRow struct {
 }
 
 func (q *Queries) ListVariants(ctx context.Context, arg ListVariantsParams) ([]ListVariantsRow, error) {
-	rows, err := q.db.Query(ctx, listVariants,
-		arg.VariantName,
-		arg.Limit,
-		arg.Offset,
-		arg.Search,
-	)
+	rows, err := q.db.Query(ctx, listVariants, arg.Limit, arg.Offset, arg.Keyword)
 	if err != nil {
 		return nil, err
 	}

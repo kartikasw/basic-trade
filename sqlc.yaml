@@ -19,3 +19,7 @@ sql:
             go_type: "time.Time"
           - db_type: "uuid"
             go_type: "github.com/google/uuid.UUID"
+          - column: "product__with__variants.variants"
+            go_type:
+              type: Variants
+              slice: true

@@ -1,10 +1,12 @@
 package service
 
 import (
+	"basic-trade/common"
 	"context"
 	"mime/multipart"
 
 	"github.com/cloudinary/cloudinary-go/v2"
+	"github.com/cloudinary/cloudinary-go/v2/api"
 	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
 )
 
@@ -13,18 +15,27 @@ type FileService struct {
 }
 
 type IFileService interface {
-	UploadImage(image *multipart.FileHeader) (string, error)
+	UploadImage(publicID string, image *multipart.FileHeader) (string, error)
 }
 
 func NewFileService(cld *cloudinary.Cloudinary) *FileService {
 	return &FileService{cld: cld}
 }
 
-func (s *FileService) UploadImage(image *multipart.FileHeader) (string, error) {
+func (s *FileService) UploadImage(publicID string, image *multipart.FileHeader) (string, error) {
+	file, err := common.ConvertFileHeaderToReader(image)
+	if err != nil {
+		return "", err
+	}
+
 	result, err := s.cld.Upload.Upload(
-		context.Background(), 
-		image.Filename, 
-		uploader.UploadParams{},
+		context.Background(),
+		file,
+		uploader.UploadParams{
+			PublicID:       publicID,
+			UniqueFilename: api.Bool(false),
+			Overwrite:      api.Bool(true),
+		},
 	)
 	if err != nil {
 		return "", err

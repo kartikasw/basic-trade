@@ -1,5 +1,3 @@
-BEGIN;
-
 CREATE TABLE IF NOT EXISTS admins (
   id bigserial NOT NULL,
   uuid uuid NOT NULL UNIQUE DEFAULT gen_random_uuid(),
@@ -73,4 +71,21 @@ BEFORE UPDATE ON variants
 FOR EACH ROW
 EXECUTE FUNCTION update_updated_at_column();
 
-COMMIT;
+CREATE VIEW product__view AS
+SELECT 
+  p.uuid, 
+  p.name, 
+  p.image_url,
+  COALESCE(
+    json_agg(
+      json_build_object(
+        'uuid', v.uuid,
+        'variant_name', v.variant_name,
+        'quantity', v.quantity
+      )
+    ) FILTER (WHERE v.uuid IS NOT NULL), 
+    '[]'
+  ) AS variants
+FROM products p
+LEFT JOIN variants v ON p.id = v.product_id
+GROUP BY p.id;

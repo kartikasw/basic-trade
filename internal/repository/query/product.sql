@@ -8,9 +8,15 @@ INSERT INTO products (
 )
 RETURNING uuid, name, image_url;
 
+-- name: GetProductID :one
+SELECT id FROM products
+WHERE uuid = $1 
+LIMIT 1;
+
 -- name: GetProduct :one
-SELECT id, uuid, name, image_url FROM products
-WHERE uuid = $1 LIMIT 1;
+SELECT * FROM product__view
+WHERE uuid = $1 
+LIMIT 1;
 
 -- name: GetProductForUpdate :one
 SELECT uuid, name, image_url FROM products
@@ -31,11 +37,10 @@ WHERE uuid = $1
 RETURNING uuid, name, image_url;
 
 -- name: ListProducts :many
-SELECT uuid, name, image_url FROM products
-WHERE sqlc.arg(search)::bool AND name LIKE $1
-ORDER BY created_at DESC
-LIMIT $2
-OFFSET $3;
+SELECT * FROM product__view
+WHERE (COALESCE(sqlc.arg(keyword)::text, '') = '' OR name_search @@ to_tsquery(sqlc.arg(keyword)::text))
+LIMIT $1
+OFFSET $2;
 
 -- name: DeleteProduct :exec
 DELETE FROM products WHERE uuid = $1;
