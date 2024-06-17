@@ -45,6 +45,14 @@ func ErrorValidation(e error) error {
 			} else {
 				err = fmt.Errorf("%s must be at least %s characters.", e.Field(), e.Param())
 			}
+		case "max":
+			if e.Kind() == reflect.Int {
+				err = fmt.Errorf("%s must be less than %s.", e.Field(), e.Param())
+			} else {
+				err = fmt.Errorf("%s must be less than %s characters.", e.Field(), e.Param())
+			}
+		case "validImage":
+			err = fmt.Errorf("Image must be a jpg, jpeg, png, or svg, and no larger than 5 MB.")
 		default:
 			err = fmt.Errorf("%s is invalid.", e.Field())
 		}

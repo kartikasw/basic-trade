@@ -13,6 +13,13 @@ type Variant struct {
 	Quantity    int32     `json:"quantity"`
 }
 
+type VariantViewList struct {
+	RowID       int64     `json:"row_id"`
+	UUID        uuid.UUID `json:"uuid"`
+	VariantName string    `json:"variant_name"`
+	Quantity    int32     `json:"quantity"`
+}
+
 func VariantInterfaceToEntityList(items interface{}) []Variant {
 	variants := make([]Variant, len(items.([]interface{})))
 
@@ -60,11 +67,12 @@ func UpdateVariantToViewModel(variant sqlc.UpdateAVariantRow) Variant {
 	}
 }
 
-func ListVariantToViewModel(variants []sqlc.ListVariantsRow) []Variant {
-	list := make([]Variant, len(variants))
+func ListVariantToViewModel(variants []sqlc.ListVariantsRow) []VariantViewList {
+	list := make([]VariantViewList, len(variants))
 
 	for index, item := range variants {
-		list[index] = Variant{
+		list[index] = VariantViewList{
+			RowID:       item.RowNumber,
 			UUID:        item.Uuid,
 			VariantName: item.VariantName,
 			Quantity:    item.Quantity,

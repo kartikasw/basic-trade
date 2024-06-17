@@ -28,7 +28,12 @@ SELECT uuid, variant_name, quantity, product_id FROM variants
 WHERE uuid = $1 LIMIT 1;
 
 -- name: ListVariants :many
-SELECT uuid, variant_name, quantity FROM variants
+SELECT 
+    ROW_NUMBER() OVER (ORDER BY created_at DESC),
+    uuid, 
+    variant_name, 
+    quantity 
+FROM variants
 WHERE sqlc.arg(keyword)::text = '' OR variant_name_search @@ to_tsquery(sqlc.arg(keyword)::text)
 ORDER BY created_at DESC
 LIMIT $1

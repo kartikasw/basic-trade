@@ -94,7 +94,12 @@ func (q *Queries) GetVariantForUpdate(ctx context.Context, argUuid uuid.UUID) (G
 }
 
 const listVariants = `-- name: ListVariants :many
-SELECT uuid, variant_name, quantity FROM variants
+SELECT 
+    ROW_NUMBER() OVER (ORDER BY created_at DESC),
+    uuid, 
+    variant_name, 
+    quantity 
+FROM variants
 WHERE $3::text = '' OR variant_name_search @@ to_tsquery($3::text)
 ORDER BY created_at DESC
 LIMIT $1
@@ -108,6 +113,7 @@ type ListVariantsParams struct {
 }
 
 type ListVariantsRow struct {
+	RowNumber   int64     `json:"row_number"`
 	Uuid        uuid.UUID `json:"uuid"`
 	VariantName string    `json:"variant_name"`
 	Quantity    int32     `json:"quantity"`
@@ -122,7 +128,12 @@ func (q *Queries) ListVariants(ctx context.Context, arg ListVariantsParams) ([]L
 	items := []ListVariantsRow{}
 	for rows.Next() {
 		var i ListVariantsRow
-		if err := rows.Scan(&i.Uuid, &i.VariantName, &i.Quantity); err != nil {
+		if err := rows.Scan(
+			&i.RowNumber,
+			&i.Uuid,
+			&i.VariantName,
+			&i.Quantity,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
