@@ -54,13 +54,18 @@ func (server *Server) setupRouter(cfg config.App) {
 
 	router.MaxMultipartMemory = common.MaxFileSize
 
-	formRoutes := router.Group("/").Use(middleware.ContentTypeValidation(), middleware.Timeout(cfg.Timeout))
+	formRoutes := router.Group("/").Use(
+		middleware.RateLimiter(),
+		middleware.ContentTypeValidation(),
+		middleware.Timeout(cfg.Timeout),
+	)
 	{
 		formRoutes.POST("/auth/register", server.authHandler.Register)
 		formRoutes.POST("/auth/login", server.authHandler.Login)
 	}
 
 	authFormRoutes := router.Group("/").Use(
+		middleware.RateLimiter(),
 		middleware.ContentTypeValidation(),
 		middleware.Authentication(server.jwtImpl),
 		middleware.Timeout(cfg.Timeout),
@@ -72,7 +77,7 @@ func (server *Server) setupRouter(cfg config.App) {
 		authFormRoutes.PUT("/variants/:uuid", server.authorization.VariantAuthorization(), server.variantHandler.UpdateVariant)
 	}
 
-	timeout := router.Group("/").Use(middleware.Timeout(cfg.Timeout))
+	timeout := router.Group("/").Use(middleware.RateLimiter(), middleware.Timeout(cfg.Timeout))
 	{
 		timeout.GET("/products", server.productHandler.GetAllProducts)
 		timeout.GET("/products/search", server.productHandler.SearchProducts)
@@ -82,7 +87,11 @@ func (server *Server) setupRouter(cfg config.App) {
 		timeout.GET("/variants/:uuid", server.variantHandler.GetVariant)
 	}
 
-	authRoutes := router.Group("/").Use(middleware.Authentication(server.jwtImpl), middleware.Timeout(cfg.Timeout))
+	authRoutes := router.Group("/").Use(
+		middleware.RateLimiter(),
+		middleware.Authentication(server.jwtImpl),
+		middleware.Timeout(cfg.Timeout),
+	)
 	{
 		authRoutes.DELETE("/products/:uuid", server.authorization.ProductAuthorization(), server.productHandler.DeleteProduct)
 		authRoutes.DELETE("/variants/:uuid", server.authorization.VariantAuthorization(), server.variantHandler.DeleteVariant)

@@ -75,7 +75,7 @@ func (h *AuthHandler) Login(ctx *gin.Context) {
 			Password: req.Password,
 		}
 
-		result, token, err := h.authService.Login(arg)
+		result, token, err := h.authService.Login(c, arg)
 		if err != nil {
 			var statusCode = http.StatusInternalServerError
 			if errors.Is(err, common.ErrRecordNotFound) || common.ErrorCode(err) == fmt.Sprint(common.ErrCredentiials) {

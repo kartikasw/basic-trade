@@ -19,7 +19,7 @@ type IAuthService struct {
 
 type AuthService interface {
 	Register(ctx context.Context, admin entity.Admin) (entity.Admin, error)
-	Login(admin entity.Admin) (entity.Admin, string, error)
+	Login(ctx context.Context, admin entity.Admin) (entity.Admin, string, error)
 }
 
 func NewAuthService(adminRepo repository.AdminRepository, jwtImpl token.JWT) AuthService {
@@ -46,8 +46,8 @@ func (s *IAuthService) Register(ctx context.Context, admin entity.Admin) (entity
 	return entity.CreateAdminToViewModel(result), err
 }
 
-func (s *IAuthService) Login(admin entity.Admin) (entity.Admin, string, error) {
-	result, err := s.adminRepo.GetAdmin(admin.Email)
+func (s *IAuthService) Login(ctx context.Context, admin entity.Admin) (entity.Admin, string, error) {
+	result, err := s.adminRepo.GetAdmin(ctx, admin.Email)
 	if err != nil {
 		return entity.Admin{}, "", err
 	}

@@ -3,29 +3,31 @@ package repository
 import (
 	"basic-trade/common"
 	sqlc "basic-trade/internal/repository/sqlc"
+	"context"
+	"errors"
 	"testing"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 )
 
-func createRandomProduct(t *testing.T, adminUUID uuid.UUID, withVariants bool) sqlc.CreateProductRow {
+func createRandomProduct(t *testing.T, ctx context.Context, adminUUID uuid.UUID, withVariants bool) sqlc.CreateProductRow {
 	arg := sqlc.CreateProductParams{
-		Name:     common.RandomName(),
-		ImageUrl: common.RandomString(6),
+		Name: common.RandomName(),
 	}
 
-	product, err := testProductRepo.CreateProduct(nil, arg, adminUUID, nil)
+	product, err := testProductRepo.CreateProduct(ctx, arg, adminUUID, func() (string, error) {
+		return common.RandomString(6), nil
+	})
 
 	require.NoError(t, err)
 	require.Equal(t, arg.Name, product.Name)
-	require.Equal(t, arg.ImageUrl, product.ImageUrl)
 
 	if withVariants {
 		n := int(common.RandomInt(1, 10))
 
 		for i := 1; i <= n; i++ {
-			createRandomVariant(t, product.Uuid)
+			createRandomVariant(t, ctx, product.Uuid)
 		}
 	}
 
@@ -33,16 +35,22 @@ func createRandomProduct(t *testing.T, adminUUID uuid.UUID, withVariants bool) s
 }
 
 func TestCreateProduct(t *testing.T) {
-	admin := createRandomAdmin(t)
+	ctx := context.Background()
+	defer tearDown(ctx)
 
-	createRandomProduct(t, admin.Uuid, false)
+	admin := createRandomAdmin(t, ctx)
+
+	createRandomProduct(t, ctx, admin.Uuid, false)
 }
 
 func TestGetProduct(t *testing.T) {
-	admin := createRandomAdmin(t)
-	product1 := createRandomProduct(t, admin.Uuid, false)
+	ctx := context.Background()
+	defer tearDown(ctx)
 
-	product2, err := testProductRepo.GetProduct(nil, product1.Uuid)
+	admin := createRandomAdmin(t, ctx)
+	product1 := createRandomProduct(t, ctx, admin.Uuid, false)
+
+	product2, err := testProductRepo.GetProduct(ctx, product1.Uuid)
 
 	require.NoError(t, err)
 	require.Equal(t, product1.Name, product2.Name)
@@ -53,29 +61,37 @@ func TestGetProduct(t *testing.T) {
 }
 
 func TestGetAllProducts(t *testing.T) {
-	admin := createRandomAdmin(t)
+	ctx := context.Background()
+	defer tearDown(ctx)
 
-	for i := 1; 1 <= 10; i++ {
-		product := createRandomProduct(t, admin.Uuid, false)
-		require.Equal(t, product.Uuid, admin.Uuid)
+	admin := createRandomAdmin(t, ctx)
+
+	n := 10
+	for i := 1; i <= n; i++ {
+		createRandomProduct(t, ctx, admin.Uuid, false)
 	}
 
-	arg := sqlc.ListProductsParams{
-		Limit:  10,
-		Offset: 0,
-	}
-
-	products, err := testProductRepo.GetAllProducts(nil, arg)
+	arg1 := sqlc.ListProductsParams{Limit: 5, Offset: 0}
+	products1, err := testProductRepo.GetAllProducts(ctx, arg1)
 
 	require.NoError(t, err)
-	require.Len(t, products, 10)
+	require.Len(t, products1, 5)
+	require.Equal(t, products1[0].RowNumber, int64(1))
+
+	arg2 := sqlc.ListProductsParams{Limit: 5, Offset: 5}
+	products2, err := testProductRepo.GetAllProducts(ctx, arg2)
+
+	require.NoError(t, err)
+	require.Len(t, products2, 5)
+	require.Equal(t, products2[0].RowNumber, int64(6))
 }
 
-func TestGetAllProductsForSearch(t *testing.T) {}
-
 func TestUpdateProduct(t *testing.T) {
-	admin := createRandomAdmin(t)
-	product1 := createRandomProduct(t, admin.Uuid, false)
+	ctx := context.Background()
+	defer tearDown(ctx)
+
+	admin := createRandomAdmin(t, ctx)
+	product1 := createRandomProduct(t, ctx, admin.Uuid, false)
 
 	arg := sqlc.UpdateAProductParams{
 		Uuid:    product1.Uuid,
@@ -83,32 +99,45 @@ func TestUpdateProduct(t *testing.T) {
 		Name:    common.RandomName(),
 	}
 
-	product2, err := testProductRepo.UpdateProduct(nil, arg, nil)
+	product2, err := testProductRepo.UpdateProduct(ctx, arg, func() (string, error) {
+		return common.RandomString(10), nil
+	})
 
 	require.NoError(t, err)
 	require.Equal(t, product2.Uuid, product1.Uuid)
 	require.Equal(t, product2.Name, arg.Name)
 	require.NotEqual(t, product2.Name, product1.Name)
+	require.NotEqual(t, product2.ImageUrl, product1.ImageUrl)
 }
 
 func TestDeleteProduct(t *testing.T) {
-	admin := createRandomAdmin(t)
-	product := createRandomProduct(t, admin.Uuid, true)
+	ctx := context.Background()
+	defer tearDown(ctx)
 
-	err := testProductRepo.DeleteProduct(nil, product.Uuid, nil)
+	admin := createRandomAdmin(t, ctx)
+	product := createRandomProduct(t, ctx, admin.Uuid, true)
 
-	require.NoError(t, err)
-
-	_, err = testProductRepo.GetProduct(nil, product.Uuid)
+	err := testProductRepo.DeleteProduct(ctx, product.Uuid, func() error {
+		return errors.New("error")
+	})
 
 	require.Error(t, err)
 
-	arg := sqlc.ListVariantsParams{
-		Limit:  100,
-		Offset: 0,
-	}
+	get, err := testProductRepo.GetProduct(ctx, product.Uuid)
+	require.Equal(t, get.Uuid, product.Uuid)
 
-	variants, err := testVariantRepo.GetAllVariants(nil, arg)
+	err = testProductRepo.DeleteProduct(ctx, product.Uuid, func() error {
+		return nil
+	})
+
+	require.NoError(t, err)
+
+	_, err = testProductRepo.GetProduct(ctx, product.Uuid)
+	require.Error(t, err)
+
+	arg := sqlc.ListVariantsParams{Limit: 100, Offset: 0}
+
+	variants, err := testVariantRepo.GetAllVariants(ctx, arg)
 
 	require.NoError(t, err)
 	require.Len(t, variants, 0)

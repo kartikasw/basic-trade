@@ -3,6 +3,7 @@ package repository
 import (
 	"basic-trade/pkg/config"
 	"basic-trade/pkg/db"
+	"context"
 	"fmt"
 	"log"
 	"os"
@@ -24,7 +25,7 @@ var (
 	resource        *dockertest.Resource
 )
 
-const useDocker = false
+const useDocker = true
 
 func TestMain(m *testing.M) {
 	cfg := config.LoadTestConfig("../../app.yaml")
@@ -37,6 +38,7 @@ func TestMain(m *testing.M) {
 	} else {
 		setUpDatabase(cfg)
 		test = m.Run()
+		tearDownDockerTestEnv()
 	}
 
 	os.Exit(test)
@@ -81,8 +83,6 @@ func setUpDocketTestEnv(cfg config.Config) {
 	}
 	cfg.Database.Port = port
 
-	// Takes a few seconds to start up
-	// Increase the delay if it fails to connect
 	time.Sleep(3 * time.Second)
 
 	if err := pool.Retry(func() error {
@@ -109,6 +109,7 @@ func setUpDocketTestEnv(cfg config.Config) {
 
 func setUpDatabase(cfg config.Config) error {
 	var err error
+	cfg.Database.MigrationURL = "file://../../migration"
 	testDB, err = db.InitDB(cfg.Database)
 	if err != nil {
 		return err
@@ -125,4 +126,19 @@ func tearDownDockerTestEnv() {
 	if err := pool.Purge(resource); err != nil {
 		log.Fatal("Could not purge Docker: ", err)
 	}
+}
+
+func tearDown(ctx context.Context) {
+	tx, err := testDB.Begin(ctx)
+	if err != nil {
+		log.Fatal("Couldn't teardown: ", err)
+	}
+
+	defer tx.Rollback(ctx)
+
+	tx.Exec(ctx, "DELETE FROM variants")
+	tx.Exec(ctx, "DELETE FROM products")
+	tx.Exec(ctx, "DELETE FROM admins")
+
+	tx.Commit(ctx)
 }

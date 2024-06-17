@@ -65,14 +65,13 @@ func (r *IVariantRepository) UpdateVariant(ctx context.Context, arg sqlc.UpdateA
 	var result sqlc.UpdateAVariantRow
 
 	err := r.store.ExecTx(ctx, func(q *sqlc.Queries) error {
-		variant, err := q.GetVariantForUpdate(ctx, arg.Uuid)
+		_, err := q.GetVariantForUpdate(ctx, arg.Uuid)
 		if err != nil {
 			return err
 		}
 
 		if arg.VariantName != "" {
 			arg.SetVariantName = true
-			arg.VariantName = variant.VariantName
 		}
 
 		result, err = q.UpdateAVariant(ctx, arg)

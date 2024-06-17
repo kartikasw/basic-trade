@@ -81,14 +81,13 @@ func (r *IProductRepository) UpdateProduct(
 	var result sqlc.UpdateAProductRow
 
 	err := r.store.ExecTx(ctx, func(q *sqlc.Queries) error {
-		product, err := q.GetProductForUpdate(ctx, arg.Uuid)
+		_, err := q.GetProductForUpdate(ctx, arg.Uuid)
 		if err != nil {
 			return err
 		}
 
 		if arg.Name != "" {
 			arg.SetName = true
-			arg.Name = product.Name
 		}
 
 		if uplImage != nil {

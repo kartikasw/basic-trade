@@ -14,9 +14,9 @@ type IAdminRepository struct {
 
 type AdminRepository interface {
 	CreateAdmin(ctx context.Context, admin sqlc.CreateAdminParams) (sqlc.CreateAdminRow, error)
-	GetAdmin(email string) (sqlc.GetAdminRow, error)
-	CheckProductFromAdmin(uuiAdm uuid.UUID, uuidPrd uuid.UUID) bool
-	CheckVariantFromAdmin(uuiAdm uuid.UUID, uuidVrt uuid.UUID) bool
+	GetAdmin(ctx context.Context, email string) (sqlc.GetAdminRow, error)
+	CheckProductFromAdmin(ctx context.Context, uuidAdm uuid.UUID, uuidPrd uuid.UUID) bool
+	CheckVariantFromAdmin(ctx context.Context, uuidAdm uuid.UUID, uuidVrt uuid.UUID) bool
 }
 
 func NewAdminRepository(connPool *pgxpool.Pool) AdminRepository {
@@ -40,23 +40,23 @@ func (r *IAdminRepository) CreateAdmin(ctx context.Context, arg sqlc.CreateAdmin
 	return result, err
 }
 
-func (r *IAdminRepository) GetAdmin(email string) (sqlc.GetAdminRow, error) {
+func (r *IAdminRepository) GetAdmin(ctx context.Context, email string) (sqlc.GetAdminRow, error) {
 	arg := sqlc.GetAdminParams{
 		Login: true,
 		Email: email,
 	}
-	result, err := r.store.GetAdmin(context.Background(), arg)
+	result, err := r.store.GetAdmin(ctx, arg)
 
 	return result, err
 }
 
-func (r *IAdminRepository) CheckProductFromAdmin(uuiAdm uuid.UUID, uuidPrd uuid.UUID) bool {
+func (r *IAdminRepository) CheckProductFromAdmin(ctx context.Context, uuidAdm uuid.UUID, uuidPrd uuid.UUID) bool {
 	arg := sqlc.CheckProductFromAdminParams{
-		AdminUuid:   uuiAdm,
+		AdminUuid:   uuidAdm,
 		ProductUuid: uuidPrd,
 	}
 
-	result, err := r.store.CheckProductFromAdmin(context.Background(), arg)
+	result, err := r.store.CheckProductFromAdmin(ctx, arg)
 	if err != nil {
 		return false
 	}
@@ -68,13 +68,13 @@ func (r *IAdminRepository) CheckProductFromAdmin(uuiAdm uuid.UUID, uuidPrd uuid.
 	return true
 }
 
-func (r *IAdminRepository) CheckVariantFromAdmin(uuiAdm uuid.UUID, uuidVrt uuid.UUID) bool {
+func (r *IAdminRepository) CheckVariantFromAdmin(ctx context.Context, uuidAdm uuid.UUID, uuidVrt uuid.UUID) bool {
 	arg := sqlc.CheckVariantFromAdminParams{
-		AdminUuid:   uuiAdm,
+		AdminUuid:   uuidAdm,
 		VariantUuid: uuidVrt,
 	}
 
-	result, err := r.store.CheckVariantFromAdmin(context.Background(), arg)
+	result, err := r.store.CheckVariantFromAdmin(ctx, arg)
 	if err != nil {
 		return false
 	}

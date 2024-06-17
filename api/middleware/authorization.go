@@ -39,7 +39,7 @@ func (a *AuthorizationMiddleware) ProductAuthorization() gin.HandlerFunc {
 				}
 			}
 
-			result := a.adminRepo.CheckProductFromAdmin(payload.UserID, productUUID)
+			result := a.adminRepo.CheckProductFromAdmin(c, payload.UserID, productUUID)
 
 			if !result {
 				resChan <- apiHelper.ResponseData{
@@ -67,7 +67,7 @@ func (a *AuthorizationMiddleware) VariantAuthorization() gin.HandlerFunc {
 				}
 			}
 
-			result := a.adminRepo.CheckVariantFromAdmin(payload.UserID, variantUUID)
+			result := a.adminRepo.CheckVariantFromAdmin(c, payload.UserID, variantUUID)
 			if !result {
 				resChan <- apiHelper.ResponseData{
 					StatusCode: http.StatusUnauthorized,
