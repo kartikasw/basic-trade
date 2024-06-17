@@ -8,28 +8,39 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-type AdminRepository struct {
+type IAdminRepository struct {
 	store *sqlc.Store
 }
 
-type IAdminRepository interface {
-	CreateAdmin(admin sqlc.CreateAdminParams) (sqlc.CreateAdminRow, error)
+type AdminRepository interface {
+	CreateAdmin(ctx context.Context, admin sqlc.CreateAdminParams) (sqlc.CreateAdminRow, error)
 	GetAdmin(email string) (sqlc.GetAdminRow, error)
 	CheckProductFromAdmin(uuiAdm uuid.UUID, uuidPrd uuid.UUID) bool
 	CheckVariantFromAdmin(uuiAdm uuid.UUID, uuidVrt uuid.UUID) bool
 }
 
-func NewAdminRepository(connPool *pgxpool.Pool) *AdminRepository {
-	return &AdminRepository{store: sqlc.NewStore(connPool)}
+func NewAdminRepository(connPool *pgxpool.Pool) AdminRepository {
+	return &IAdminRepository{store: sqlc.NewStore(connPool)}
 }
 
-func (r *AdminRepository) CreateAdmin(arg sqlc.CreateAdminParams) (sqlc.CreateAdminRow, error) {
-	result, err := r.store.CreateAdmin(context.Background(), arg)
+func (r *IAdminRepository) CreateAdmin(ctx context.Context, arg sqlc.CreateAdminParams) (sqlc.CreateAdminRow, error) {
+	var result sqlc.CreateAdminRow
+
+	err := r.store.ExecTx(ctx, func(q *sqlc.Queries) error {
+		var err error
+		result, err = r.store.CreateAdmin(ctx, arg)
+
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
 
 	return result, err
 }
 
-func (r *AdminRepository) GetAdmin(email string) (sqlc.GetAdminRow, error) {
+func (r *IAdminRepository) GetAdmin(email string) (sqlc.GetAdminRow, error) {
 	arg := sqlc.GetAdminParams{
 		Login: true,
 		Email: email,
@@ -39,7 +50,7 @@ func (r *AdminRepository) GetAdmin(email string) (sqlc.GetAdminRow, error) {
 	return result, err
 }
 
-func (r *AdminRepository) CheckProductFromAdmin(uuiAdm uuid.UUID, uuidPrd uuid.UUID) bool {
+func (r *IAdminRepository) CheckProductFromAdmin(uuiAdm uuid.UUID, uuidPrd uuid.UUID) bool {
 	arg := sqlc.CheckProductFromAdminParams{
 		AdminUuid:   uuiAdm,
 		ProductUuid: uuidPrd,
@@ -57,7 +68,7 @@ func (r *AdminRepository) CheckProductFromAdmin(uuiAdm uuid.UUID, uuidPrd uuid.U
 	return true
 }
 
-func (r *AdminRepository) CheckVariantFromAdmin(uuiAdm uuid.UUID, uuidVrt uuid.UUID) bool {
+func (r *IAdminRepository) CheckVariantFromAdmin(uuiAdm uuid.UUID, uuidVrt uuid.UUID) bool {
 	arg := sqlc.CheckVariantFromAdminParams{
 		AdminUuid:   uuiAdm,
 		VariantUuid: uuidVrt,

@@ -4,7 +4,6 @@ import (
 	cfg "basic-trade/pkg/config"
 	"context"
 	"fmt"
-	"log"
 
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
@@ -32,11 +31,11 @@ func InitDB(d cfg.Database) (*pgxpool.Pool, error) {
 
 	migration, err := migrate.New(d.MigrationURL, source)
 	if err != nil {
-		log.Fatal("Couldn't cretae migration: ", err)
+		return nil, fmt.Errorf("Couldn't create migration: %w", err)
 	}
 
 	if err = migration.Up(); err != nil && err != migrate.ErrNoChange {
-		log.Fatal("Couldn't run migration up: ", err)
+		return nil, fmt.Errorf("Couldn't run migration up: %w", err)
 	}
 
 	return connPool, nil

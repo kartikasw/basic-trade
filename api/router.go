@@ -5,6 +5,7 @@ import (
 	"basic-trade/common"
 	"basic-trade/internal/handler"
 	"basic-trade/internal/repository"
+	"basic-trade/pkg/config"
 	"basic-trade/pkg/token"
 	"basic-trade/pkg/validation"
 
@@ -15,7 +16,7 @@ import (
 
 type Server struct {
 	router         *gin.Engine
-	tokenMaker     token.Maker
+	jwtImpl        token.JWT
 	authHandler    *handler.AuthHandler
 	productHandler *handler.ProductHandler
 	variantHandler *handler.VariantHandler
@@ -23,14 +24,15 @@ type Server struct {
 }
 
 func NewServer(
-	tokenMaker token.Maker,
+	cfg config.App,
+	jwtImpl token.JWT,
 	authHandler *handler.AuthHandler,
 	productHandler *handler.ProductHandler,
 	variantHandler *handler.VariantHandler,
-	adminRepo repository.IAdminRepository,
+	adminRepo repository.AdminRepository,
 ) *Server {
 	server := &Server{
-		tokenMaker:     tokenMaker,
+		jwtImpl:        jwtImpl,
 		authHandler:    authHandler,
 		productHandler: productHandler,
 		variantHandler: variantHandler,
@@ -43,34 +45,48 @@ func NewServer(
 
 	}
 
-	server.setupRouter()
+	server.setupRouter(cfg)
 	return server
 }
 
-func (server *Server) setupRouter() {
+func (server *Server) setupRouter(cfg config.App) {
 	router := gin.Default()
 
 	router.MaxMultipartMemory = common.MaxFileSize
 
-	router.POST("/auth/register", server.authHandler.Register)
-	router.POST("/auth/login", server.authHandler.Login)
+	formRoutes := router.Group("/").Use(middleware.ContentTypeValidation(), middleware.Timeout(cfg.Timeout))
+	{
+		formRoutes.POST("/auth/register", server.authHandler.Register)
+		formRoutes.POST("/auth/login", server.authHandler.Login)
+	}
 
-	router.GET("/products", server.productHandler.GetAllProducts)
-	router.GET("/products/search", server.productHandler.SearchProducts)
-	router.GET("/products/:uuid", server.productHandler.GetProduct)
+	authFormRoutes := router.Group("/").Use(
+		middleware.ContentTypeValidation(),
+		middleware.Authentication(server.jwtImpl),
+		middleware.Timeout(cfg.Timeout),
+	)
+	{
+		authFormRoutes.POST("/products", server.productHandler.CreateProduct)
+		authFormRoutes.PUT("/products/:uuid", server.authorization.ProductAuthorization(), server.productHandler.UpdateProduct)
+		authFormRoutes.POST("/variants", server.variantHandler.CreateVariant)
+		authFormRoutes.PUT("/variants/:uuid", server.authorization.VariantAuthorization(), server.variantHandler.UpdateVariant)
+	}
 
-	router.GET("/variants", server.variantHandler.GetAllVariants)
-	router.GET("/variants/search", server.variantHandler.SearchVariants)
-	router.GET("/variants/:uuid", server.variantHandler.GetVariant)
+	timeout := router.Group("/").Use(middleware.Timeout(cfg.Timeout))
+	{
+		timeout.GET("/products", server.productHandler.GetAllProducts)
+		timeout.GET("/products/search", server.productHandler.SearchProducts)
+		timeout.GET("/products/:uuid", server.productHandler.GetProduct)
+		timeout.GET("/variants", server.variantHandler.GetAllVariants)
+		timeout.GET("/variants/search", server.variantHandler.SearchVariants)
+		timeout.GET("/variants/:uuid", server.variantHandler.GetVariant)
+	}
 
-	authRoutes := router.Group("/").Use(middleware.Authentication(server.tokenMaker))
-	authRoutes.POST("/products", server.productHandler.CreateProduct)
-	authRoutes.PUT("/products/:uuid", server.authorization.ProductAuthorization(), server.productHandler.UpdateProduct)
-	authRoutes.DELETE("/products/:uuid", server.authorization.ProductAuthorization(), server.productHandler.DeleteProduct)
-
-	authRoutes.POST("/variants", server.variantHandler.CreateVariant)
-	authRoutes.PUT("/variants/:uuid", server.authorization.VariantAuthorization(), server.variantHandler.UpdateVariant)
-	authRoutes.DELETE("/variants/:uuid", server.authorization.VariantAuthorization(), server.variantHandler.DeleteVariant)
+	authRoutes := router.Group("/").Use(middleware.Authentication(server.jwtImpl), middleware.Timeout(cfg.Timeout))
+	{
+		authRoutes.DELETE("/products/:uuid", server.authorization.ProductAuthorization(), server.productHandler.DeleteProduct)
+		authRoutes.DELETE("/variants/:uuid", server.authorization.VariantAuthorization(), server.variantHandler.DeleteVariant)
+	}
 
 	server.router = router
 }

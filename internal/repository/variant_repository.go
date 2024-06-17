@@ -8,25 +8,27 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-type VariantRepository struct {
+type IVariantRepository struct {
 	store *sqlc.Store
 }
 
-type IVariantRepository interface {
-	CreateVariant(arg sqlc.CreateVariantParams, uuidPrd uuid.UUID) (sqlc.CreateVariantRow, error)
-	GetVariant(uuid uuid.UUID) (sqlc.GetVariantRow, error)
-	GetAllVariants(arg sqlc.ListVariantsParams) ([]sqlc.ListVariantsRow, error)
-	UpdateVariant(arg sqlc.UpdateAVariantParams) (sqlc.UpdateAVariantRow, error)
-	DeleteVariant(uuid uuid.UUID) error
+type VariantRepository interface {
+	CreateVariant(ctx context.Context, arg sqlc.CreateVariantParams, uuidPrd uuid.UUID) (sqlc.CreateVariantRow, error)
+	GetVariant(ctx context.Context, uuid uuid.UUID) (sqlc.GetVariantRow, error)
+	GetAllVariants(ctx context.Context, arg sqlc.ListVariantsParams) ([]sqlc.ListVariantsRow, error)
+	UpdateVariant(ctx context.Context, arg sqlc.UpdateAVariantParams) (sqlc.UpdateAVariantRow, error)
+	DeleteVariant(ctx context.Context, uuid uuid.UUID) error
 }
 
-func NewVariantRepository(connPool *pgxpool.Pool) *VariantRepository {
-	return &VariantRepository{store: sqlc.NewStore(connPool)}
+func NewVariantRepository(connPool *pgxpool.Pool) VariantRepository {
+	return &IVariantRepository{store: sqlc.NewStore(connPool)}
 }
 
-func (r *VariantRepository) CreateVariant(arg sqlc.CreateVariantParams, uuidPrd uuid.UUID) (sqlc.CreateVariantRow, error) {
-	ctx := context.Background()
-
+func (r *IVariantRepository) CreateVariant(
+	ctx context.Context,
+	arg sqlc.CreateVariantParams,
+	uuidPrd uuid.UUID,
+) (sqlc.CreateVariantRow, error) {
 	var result sqlc.CreateVariantRow
 
 	err := r.store.ExecTx(ctx, func(q *sqlc.Queries) error {
@@ -47,22 +49,20 @@ func (r *VariantRepository) CreateVariant(arg sqlc.CreateVariantParams, uuidPrd 
 	return result, err
 }
 
-func (r *VariantRepository) GetVariant(uuid uuid.UUID) (sqlc.GetVariantRow, error) {
-	result, err := r.store.GetVariant(context.Background(), uuid)
+func (r *IVariantRepository) GetVariant(ctx context.Context, uuid uuid.UUID) (sqlc.GetVariantRow, error) {
+	result, err := r.store.GetVariant(ctx, uuid)
 
 	return result, err
 }
 
-func (r *VariantRepository) GetAllVariants(arg sqlc.ListVariantsParams) ([]sqlc.ListVariantsRow, error) {
-	result, err := r.store.ListVariants(context.Background(), arg)
+func (r *IVariantRepository) GetAllVariants(ctx context.Context, arg sqlc.ListVariantsParams) ([]sqlc.ListVariantsRow, error) {
+	result, err := r.store.ListVariants(ctx, arg)
 
 	return result, err
 }
 
-func (r *VariantRepository) UpdateVariant(arg sqlc.UpdateAVariantParams) (sqlc.UpdateAVariantRow, error) {
+func (r *IVariantRepository) UpdateVariant(ctx context.Context, arg sqlc.UpdateAVariantParams) (sqlc.UpdateAVariantRow, error) {
 	var result sqlc.UpdateAVariantRow
-
-	ctx := context.Background()
 
 	err := r.store.ExecTx(ctx, func(q *sqlc.Queries) error {
 		variant, err := q.GetVariantForUpdate(ctx, arg.Uuid)
@@ -86,9 +86,7 @@ func (r *VariantRepository) UpdateVariant(arg sqlc.UpdateAVariantParams) (sqlc.U
 	return result, err
 }
 
-func (r *VariantRepository) DeleteVariant(uuid uuid.UUID) error {
-	ctx := context.Background()
-
+func (r *IVariantRepository) DeleteVariant(ctx context.Context, uuid uuid.UUID) error {
 	err := r.store.ExecTx(ctx, func(q *sqlc.Queries) error {
 		err := q.DeleteVariant(ctx, uuid)
 		if err != nil {

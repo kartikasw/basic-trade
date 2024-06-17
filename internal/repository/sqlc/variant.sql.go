@@ -95,7 +95,7 @@ func (q *Queries) GetVariantForUpdate(ctx context.Context, argUuid uuid.UUID) (G
 
 const listVariants = `-- name: ListVariants :many
 SELECT uuid, variant_name, quantity FROM variants
-WHERE (COALESCE($3::text, '') = '' OR variant_name_search @@ to_tsquery($3::text))
+WHERE $3::text = '' OR variant_name_search @@ to_tsquery($3::text)
 ORDER BY created_at DESC
 LIMIT $1
 OFFSET $2

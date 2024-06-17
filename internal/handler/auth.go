@@ -1,94 +1,97 @@
 package handler
 
 import (
+	apiHelper "basic-trade/api/helper"
+	"basic-trade/api/request"
 	response "basic-trade/api/response"
+	"basic-trade/common"
 	"basic-trade/internal/entity"
 	"basic-trade/internal/service"
+	"context"
+	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
 type AuthHandler struct {
-	authService service.IAuthService
+	authService service.AuthService
 }
 
-func NewAuthHandler(authService service.IAuthService) *AuthHandler {
+func NewAuthHandler(authService service.AuthService) *AuthHandler {
 	return &AuthHandler{authService: authService}
 }
 
-type registerRequest struct {
-	Name     string `form:"name" binding:"required,max=100"`
-	Email    string `form:"email" binding:"required,email"`
-	Password string `form:"password" binding:"required,min=8"`
-}
-
-type adminResponse struct {
-	Name  string `json:"name"`
-	Email string `json:"email"`
-}
-
-func newAdminResponse(admin entity.Admin) adminResponse {
-	return adminResponse{
-		Name:  admin.Name,
-		Email: admin.Email,
-	}
-}
-
 func (h *AuthHandler) Register(ctx *gin.Context) {
-	var req registerRequest
-	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, response.ErrorResponse(err))
-		return
-	}
+	apiHelper.ResponseHandler(ctx, func(c context.Context, resChan chan apiHelper.ResponseData) {
+		var req request.RegisterRequest
+		if err := ctx.ShouldBind(&req); err != nil {
+			resChan <- apiHelper.ResponseData{
+				StatusCode: http.StatusBadRequest,
+				Error:      common.ErrorValidation(err),
+			}
+		}
 
-	arg := entity.Admin{
-		Name:     req.Name,
-		Email:    req.Email,
-		Password: req.Password,
-	}
+		arg := entity.Admin{
+			Name:     req.Name,
+			Email:    req.Email,
+			Password: req.Password,
+		}
 
-	result, err := h.authService.Register(arg)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, response.ErrorResponse(err))
-	}
+		result, err := h.authService.Register(c, arg)
 
-	ctx.JSON(http.StatusOK, newAdminResponse(result))
-}
+		if err != nil {
+			err := err
+			if common.ErrorCode(err) == common.ErrUniqueViolation {
+				err = errors.New("E-mail is already registered.")
+			}
+			resChan <- apiHelper.ResponseData{
+				StatusCode: http.StatusInternalServerError,
+				Error:      err,
+			}
+		}
 
-type loginRequest struct {
-	Email    string `form:"email" binding:"required"`
-	Password string `form:"password" binding:"required"`
-}
-
-type loginResponse struct {
-	Token string        `json:"token"`
-	Admin adminResponse `json:"admin"`
-}
-
-func newLoginResponse(token string, admin entity.Admin) loginResponse {
-	return loginResponse{
-		Token: token,
-		Admin: newAdminResponse(admin),
-	}
+		resChan <- apiHelper.ResponseData{
+			StatusCode: http.StatusCreated,
+			Message:    "Registration completed successfully.",
+			Data:       response.NewAdminResponse(result),
+		}
+	})
 }
 
 func (h *AuthHandler) Login(ctx *gin.Context) {
-	var req loginRequest
-	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, response.ErrorResponse(err))
-		return
-	}
+	apiHelper.ResponseHandler(ctx, func(c context.Context, resChan chan apiHelper.ResponseData) {
+		var req request.LoginRequest
+		if err := ctx.ShouldBind(&req); err != nil {
+			resChan <- apiHelper.ResponseData{
+				StatusCode: http.StatusBadRequest,
+				Error:      common.ErrorValidation(err),
+			}
+		}
 
-	arg := entity.Admin{
-		Email:    req.Email,
-		Password: req.Password,
-	}
+		arg := entity.Admin{
+			Email:    req.Email,
+			Password: req.Password,
+		}
 
-	result, token, err := h.authService.Login(arg)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, response.ErrorResponse(err))
-	}
+		result, token, err := h.authService.Login(arg)
+		if err != nil {
+			var statusCode = http.StatusInternalServerError
+			if errors.Is(err, common.ErrRecordNotFound) || common.ErrorCode(err) == fmt.Sprint(common.ErrCredentiials) {
+				err = errors.New("E-mail or Password is incorrect")
+				statusCode = http.StatusUnauthorized
+			}
+			resChan <- apiHelper.ResponseData{
+				StatusCode: statusCode,
+				Error:      err,
+			}
+		}
 
-	ctx.JSON(http.StatusOK, newLoginResponse(token, result))
+		resChan <- apiHelper.ResponseData{
+			StatusCode: http.StatusOK,
+			Message:    "Login successful.",
+			Data:       response.NewLoginResponse(token, result),
+		}
+	})
 }

@@ -9,38 +9,47 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-type ProductRepository struct {
+type IProductRepository struct {
 	store *sqlc.Store
 }
 
-type IProductRepository interface {
-	CreateProduct(arg sqlc.CreateProductParams, uuidAdm uuid.UUID) (sqlc.CreateProductRow, error)
-	GetProduct(uuid uuid.UUID) (sqlc.ProductView, error)
-	GetAllProducts(arg sqlc.ListProductsParams) ([]sqlc.ProductView, error)
-	UpdateProduct(arg sqlc.UpdateAProductParams) (sqlc.UpdateAProductRow, error)
-	DeleteProduct(uuid uuid.UUID) error
+type ProductRepository interface {
+	CreateProduct(ctx context.Context, arg sqlc.CreateProductParams, admUUID uuid.UUID, uplImage func() (string, error)) (sqlc.CreateProductRow, error)
+	GetProduct(ctx context.Context, uuid uuid.UUID) (sqlc.GetProductRow, error)
+	GetAllProducts(ctx context.Context, arg sqlc.ListProductsParams) ([]sqlc.ListProductsRow, error)
+	UpdateProduct(ctx context.Context, arg sqlc.UpdateAProductParams, uplImage func() (string, error)) (sqlc.UpdateAProductRow, error)
+	DeleteProduct(ctx context.Context, prdUUID uuid.UUID, delImage func() error) error
 }
 
-func NewProductRepository(connPool *pgxpool.Pool) *ProductRepository {
-	return &ProductRepository{store: sqlc.NewStore(connPool)}
+func NewProductRepository(connPool *pgxpool.Pool) ProductRepository {
+	return &IProductRepository{store: sqlc.NewStore(connPool)}
 }
 
-func (r *ProductRepository) CreateProduct(arg sqlc.CreateProductParams, uuidAdm uuid.UUID) (sqlc.CreateProductRow, error) {
-	ctx := context.Background()
-
+func (r *IProductRepository) CreateProduct(
+	ctx context.Context,
+	arg sqlc.CreateProductParams,
+	admUUID uuid.UUID,
+	uplImage func() (string, error),
+) (sqlc.CreateProductRow, error) {
 	var result sqlc.CreateProductRow
 
 	err := r.store.ExecTx(ctx, func(q *sqlc.Queries) error {
 		admArg := sqlc.GetAdminParams{
 			Get:  true,
-			Uuid: uuidAdm,
+			Uuid: admUUID,
 		}
 		admin, err := r.store.GetAdmin(ctx, admArg)
 		if err != nil {
 			return err
 		}
-	
+
+		imageURL, err := uplImage()
+		if err != nil {
+			return err
+		}
+
 		arg.AdminID = admin.ID
+		arg.ImageUrl = imageURL
 		result, err = r.store.CreateProduct(ctx, arg)
 		if err != nil {
 			return err
@@ -52,22 +61,24 @@ func (r *ProductRepository) CreateProduct(arg sqlc.CreateProductParams, uuidAdm 
 	return result, err
 }
 
-func (r *ProductRepository) GetProduct(uuid uuid.UUID) (sqlc.ProductView, error) {
-	result, err := r.store.GetProduct(context.Background(), uuid)
+func (r *IProductRepository) GetProduct(ctx context.Context, uuid uuid.UUID) (sqlc.GetProductRow, error) {
+	result, err := r.store.GetProduct(ctx, uuid)
 
 	return result, err
 }
 
-func (r *ProductRepository) GetAllProducts(arg sqlc.ListProductsParams) ([]sqlc.ProductView, error) {
-	result, err := r.store.ListProducts(context.Background(), arg)
+func (r *IProductRepository) GetAllProducts(ctx context.Context, arg sqlc.ListProductsParams) ([]sqlc.ListProductsRow, error) {
+	result, err := r.store.ListProducts(ctx, arg)
 
 	return result, err
 }
 
-func (r *ProductRepository) UpdateProduct(arg sqlc.UpdateAProductParams) (sqlc.UpdateAProductRow, error) {
+func (r *IProductRepository) UpdateProduct(
+	ctx context.Context,
+	arg sqlc.UpdateAProductParams,
+	uplImage func() (string, error),
+) (sqlc.UpdateAProductRow, error) {
 	var result sqlc.UpdateAProductRow
-
-	ctx := context.Background()
 
 	err := r.store.ExecTx(ctx, func(q *sqlc.Queries) error {
 		product, err := q.GetProductForUpdate(ctx, arg.Uuid)
@@ -80,9 +91,14 @@ func (r *ProductRepository) UpdateProduct(arg sqlc.UpdateAProductParams) (sqlc.U
 			arg.Name = product.Name
 		}
 
-		if arg.ImageUrl != "" {
+		if uplImage != nil {
+			imageURL, err := uplImage()
+			if err != nil {
+				return err
+			}
+
 			arg.SetImageUrl = true
-			arg.ImageUrl = product.ImageUrl
+			arg.ImageUrl = imageURL
 		}
 
 		result, err = q.UpdateAProduct(ctx, arg)
@@ -96,11 +112,14 @@ func (r *ProductRepository) UpdateProduct(arg sqlc.UpdateAProductParams) (sqlc.U
 	return result, err
 }
 
-func (r *ProductRepository) DeleteProduct(uuid uuid.UUID) error {
-	ctx := context.Background()
-
+func (r *IProductRepository) DeleteProduct(ctx context.Context, prdUUID uuid.UUID, delImage func() error) error {
 	err := r.store.ExecTx(ctx, func(q *sqlc.Queries) error {
-		err := q.DeleteProduct(ctx, uuid)
+		err := q.DeleteProduct(ctx, prdUUID)
+		if err != nil {
+			return err
+		}
+
+		err = delImage()
 		if err != nil {
 			return err
 		}

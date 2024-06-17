@@ -19,12 +19,12 @@ type Querier interface {
 	DeleteProduct(ctx context.Context, argUuid uuid.UUID) error
 	DeleteVariant(ctx context.Context, argUuid uuid.UUID) error
 	GetAdmin(ctx context.Context, arg GetAdminParams) (GetAdminRow, error)
-	GetProduct(ctx context.Context, argUuid uuid.UUID) (ProductView, error)
+	GetProduct(ctx context.Context, argUuid uuid.UUID) (GetProductRow, error)
 	GetProductForUpdate(ctx context.Context, argUuid uuid.UUID) (GetProductForUpdateRow, error)
 	GetProductID(ctx context.Context, argUuid uuid.UUID) (int64, error)
 	GetVariant(ctx context.Context, argUuid uuid.UUID) (GetVariantRow, error)
 	GetVariantForUpdate(ctx context.Context, argUuid uuid.UUID) (GetVariantForUpdateRow, error)
-	ListProducts(ctx context.Context, arg ListProductsParams) ([]ProductView, error)
+	ListProducts(ctx context.Context, arg ListProductsParams) ([]ListProductsRow, error)
 	ListVariants(ctx context.Context, arg ListVariantsParams) ([]ListVariantsRow, error)
 	UpdateAProduct(ctx context.Context, arg UpdateAProductParams) (UpdateAProductRow, error)
 	UpdateAVariant(ctx context.Context, arg UpdateAVariantParams) (UpdateAVariantRow, error)

@@ -13,7 +13,7 @@ type Admin struct {
 	Password string    `json:"password"`
 }
 
-func GetAdminToViewModel(admin *sqlc.GetAdminRow) Admin {
+func GetAdminToViewModel(admin sqlc.GetAdminRow) Admin {
 	return Admin{
 		UUID:     admin.Uuid,
 		Name:     admin.Name,
@@ -22,7 +22,7 @@ func GetAdminToViewModel(admin *sqlc.GetAdminRow) Admin {
 	}
 }
 
-func CreateAdminToViewModel(admin *sqlc.CreateAdminRow) Admin {
+func CreateAdminToViewModel(admin sqlc.CreateAdminRow) Admin {
 	return Admin{
 		UUID:     admin.Uuid,
 		Name:     admin.Name,

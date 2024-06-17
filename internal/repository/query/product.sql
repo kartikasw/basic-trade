@@ -14,7 +14,7 @@ WHERE uuid = $1
 LIMIT 1;
 
 -- name: GetProduct :one
-SELECT * FROM product__view
+SELECT uuid, name, image_url, variants FROM product__view
 WHERE uuid = $1 
 LIMIT 1;
 
@@ -37,8 +37,14 @@ WHERE uuid = $1
 RETURNING uuid, name, image_url;
 
 -- name: ListProducts :many
-SELECT * FROM product__view
-WHERE (COALESCE(sqlc.arg(keyword)::text, '') = '' OR name_search @@ to_tsquery(sqlc.arg(keyword)::text))
+SELECT 
+    ROW_NUMBER() OVER (ORDER BY created_at DESC),
+    uuid,
+    name, 
+    image_url, 
+    variants
+FROM product__view
+WHERE sqlc.arg(keyword)::text = '' OR name_search @@ to_tsquery(sqlc.arg(keyword)::text)
 LIMIT $1
 OFFSET $2;
 

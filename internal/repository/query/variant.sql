@@ -29,7 +29,7 @@ WHERE uuid = $1 LIMIT 1;
 
 -- name: ListVariants :many
 SELECT uuid, variant_name, quantity FROM variants
-WHERE (COALESCE(sqlc.arg(keyword)::text, '') = '' OR variant_name_search @@ to_tsquery(sqlc.arg(keyword)::text))
+WHERE sqlc.arg(keyword)::text = '' OR variant_name_search @@ to_tsquery(sqlc.arg(keyword)::text)
 ORDER BY created_at DESC
 LIMIT $1
 OFFSET $2;

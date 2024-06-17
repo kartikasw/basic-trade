@@ -11,45 +11,39 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-const (
-	authorizationHeaderKey  = "authorization"
-	authorizationTypeBearer = "bearer"
-	AuthorizationPayloadKey = "authorization_payload"
-)
-
-func Authentication(tokenMaker token.Maker) gin.HandlerFunc {
+func Authentication(jwt token.JWT) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		authorizationHeader := ctx.GetHeader(authorizationHeaderKey)
+		authorizationHeader := ctx.GetHeader(token.AuthorizationHeader)
 
-		if len(authorizationHeader) == 0 {
-			err := errors.New("authorization header is not provided")
+		if authorizationHeader == "" {
+			err := errors.New("Authorization header is not found")
 			ctx.AbortWithStatusJSON(http.StatusUnauthorized, response.ErrorResponse(err))
 			return
 		}
 
 		fields := strings.Fields(authorizationHeader)
 		if len(fields) < 2 {
-			err := errors.New("invalid authorization header format")
+			err := errors.New("Authorization header is not in Bearer scheme")
 			ctx.AbortWithStatusJSON(http.StatusUnauthorized, response.ErrorResponse(err))
 			return
 		}
 
-		authorizationType := strings.ToLower(fields[0])
-		if authorizationType != authorizationTypeBearer {
-			err := fmt.Errorf("unsupported authorization type %s", authorizationType)
+		authScheme := strings.ToLower(fields[0])
+		if authScheme != token.BearerScheme {
+			err := fmt.Errorf("Unsupported authorization scheme %s", authScheme)
 			ctx.AbortWithStatusJSON(http.StatusUnauthorized, response.ErrorResponse(err))
 			return
 		}
 
 		accessToken := fields[1]
-		payload, err := tokenMaker.VerifyToken(accessToken)
+		claim, err := jwt.VerifyToken(accessToken, token.AccessTokenExpectation())
 		if err != nil {
-			fmt.Println("Verify token error: ", err)
+			err = fmt.Errorf("Couldn't verify token: %w", err)
 			ctx.AbortWithStatusJSON(http.StatusUnauthorized, response.ErrorResponse(err))
 			return
 		}
 
-		ctx.Set(AuthorizationPayloadKey, payload)
+		ctx.Set(token.JWTClaim, claim)
 		ctx.Next()
 	}
 }

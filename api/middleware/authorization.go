@@ -1,62 +1,81 @@
 package middleware
 
 import (
-	"basic-trade/api/response"
+	apiHelper "basic-trade/api/helper"
 	"basic-trade/internal/repository"
 	"basic-trade/pkg/token"
+	"context"
+	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
 
+const (
+	contentType           = "Content-Type"
+	multipartFormDataType = "multipart/form-data"
+)
+
 type AuthorizationMiddleware struct {
-	adminRepo repository.IAdminRepository
+	adminRepo repository.AdminRepository
 }
 
-func NewAuthorizationMiddleware(adminRepo repository.IAdminRepository) *AuthorizationMiddleware {
+func NewAuthorizationMiddleware(adminRepo repository.AdminRepository) *AuthorizationMiddleware {
 	return &AuthorizationMiddleware{adminRepo: adminRepo}
 }
 
 func (a *AuthorizationMiddleware) ProductAuthorization() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
-		param := ctx.Param("uuid")
+		apiHelper.ResponseHandler(ctx, func(c context.Context, resChan chan apiHelper.ResponseData) {
+			payload := ctx.MustGet(token.JWTClaim).(*token.Claim)
+			param := ctx.Param("uuid")
 
-		productUUID, err := uuid.Parse(param)
-		if err != nil {
-			ctx.AbortWithStatusJSON(http.StatusInternalServerError, response.ErrorResponse(err))
-			return
-		}
+			productUUID, err := uuid.Parse(param)
+			if err != nil {
+				resChan <- apiHelper.ResponseData{
+					StatusCode: http.StatusBadRequest,
+					Error:      err,
+				}
+			}
 
-		result := a.adminRepo.CheckProductFromAdmin(authPayload.UUID, productUUID)
+			result := a.adminRepo.CheckProductFromAdmin(payload.UserID, productUUID)
 
-		if !result {
-			ctx.AbortWithStatusJSON(http.StatusUnauthorized, nil)
-			return
-		}
+			if !result {
+				resChan <- apiHelper.ResponseData{
+					StatusCode: http.StatusUnauthorized,
+					Error:      errors.New("Product doesn't belong to the authorized admin"),
+				}
+			}
 
-		ctx.Next()
+			ctx.Next()
+		})
 	}
 }
 
 func (a *AuthorizationMiddleware) VariantAuthorization() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		authPayload := ctx.MustGet(AuthorizationPayloadKey).(*token.Payload)
-		param := ctx.Param("uuid")
+		apiHelper.ResponseHandler(ctx, func(c context.Context, resChan chan apiHelper.ResponseData) {
+			payload := ctx.MustGet(token.JWTClaim).(*token.Claim)
+			param := ctx.Param("uuid")
 
-		variantUUID, err := uuid.Parse(param)
-		if err != nil {
-			ctx.AbortWithStatusJSON(http.StatusInternalServerError, response.ErrorResponse(err))
-			return
-		}
+			variantUUID, err := uuid.Parse(param)
+			if err != nil {
+				resChan <- apiHelper.ResponseData{
+					StatusCode: http.StatusBadRequest,
+					Error:      err,
+				}
+			}
 
-		result := a.adminRepo.CheckVariantFromAdmin(authPayload.UUID, variantUUID)
-		if !result {
-			ctx.AbortWithStatusJSON(http.StatusUnauthorized, nil)
-			return
-		}
+			result := a.adminRepo.CheckVariantFromAdmin(payload.UserID, variantUUID)
+			if !result {
+				resChan <- apiHelper.ResponseData{
+					StatusCode: http.StatusUnauthorized,
+					Error:      errors.New("Variant doesn't belong to the authorized admin"),
+				}
+			}
 
-		ctx.Next()
+			ctx.Next()
+		})
 	}
 }

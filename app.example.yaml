@@ -11,10 +11,14 @@ database:
 app:
   port: 
   host: 
+  timeout:
 
 token:
   secretKey: 
-  duration: 
+  accessTokenDuration: 
+  refreshTokenDuration:
+  privateKey:
+  publicKey:
 
 cloudinary:
   name:

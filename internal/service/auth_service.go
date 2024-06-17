@@ -1,31 +1,32 @@
 package service
 
 import (
+	"basic-trade/common"
 	"basic-trade/internal/entity"
 	"basic-trade/internal/repository"
-	"basic-trade/pkg/config"
 	"basic-trade/pkg/password"
 	"basic-trade/pkg/token"
+	"context"
+	"fmt"
 
 	sqlc "basic-trade/internal/repository/sqlc"
 )
 
-type AuthService struct {
-	adminRepo  repository.IAdminRepository
-	tokenMaker token.Maker
-	config     config.Token
+type IAuthService struct {
+	adminRepo repository.AdminRepository
+	jwtImpl   token.JWT
 }
 
-type IAuthService interface {
-	Register(admin entity.Admin) (entity.Admin, error)
+type AuthService interface {
+	Register(ctx context.Context, admin entity.Admin) (entity.Admin, error)
 	Login(admin entity.Admin) (entity.Admin, string, error)
 }
 
-func NewAuthService(adminRepo repository.IAdminRepository, tokenMaker token.Maker, cfg config.Token) *AuthService {
-	return &AuthService{adminRepo: adminRepo, tokenMaker: tokenMaker, config: cfg}
+func NewAuthService(adminRepo repository.AdminRepository, jwtImpl token.JWT) AuthService {
+	return &IAuthService{adminRepo: adminRepo, jwtImpl: jwtImpl}
 }
 
-func (s *AuthService) Register(admin entity.Admin) (entity.Admin, error) {
+func (s *IAuthService) Register(ctx context.Context, admin entity.Admin) (entity.Admin, error) {
 	hashedPassword, err := password.HashPassword(admin.Password)
 	if err != nil {
 		return entity.Admin{}, err
@@ -37,15 +38,15 @@ func (s *AuthService) Register(admin entity.Admin) (entity.Admin, error) {
 		Password: hashedPassword,
 	}
 
-	result, err := s.adminRepo.CreateAdmin(arg)
+	result, err := s.adminRepo.CreateAdmin(ctx, arg)
 	if err != nil {
 		return entity.Admin{}, err
 	}
 
-	return entity.CreateAdminToViewModel(&result), err
+	return entity.CreateAdminToViewModel(result), err
 }
 
-func (s *AuthService) Login(admin entity.Admin) (entity.Admin, string, error) {
+func (s *IAuthService) Login(admin entity.Admin) (entity.Admin, string, error) {
 	result, err := s.adminRepo.GetAdmin(admin.Email)
 	if err != nil {
 		return entity.Admin{}, "", err
@@ -53,16 +54,14 @@ func (s *AuthService) Login(admin entity.Admin) (entity.Admin, string, error) {
 
 	err = password.CheckPassword(admin.Password, result.Password)
 	if err != nil {
+		err := fmt.Errorf("%d", common.ErrCredentiials)
 		return entity.Admin{}, "", err
 	}
 
-	accessToken, _, err := s.tokenMaker.CreateToken(
-		result.Uuid,
-		s.config.Duration,
-	)
+	accessToken, err := s.jwtImpl.CreateAccessToken(result.Uuid)
 	if err != nil {
 		return entity.Admin{}, "", err
 	}
 
-	return entity.GetAdminToViewModel(&result), accessToken, nil
+	return entity.GetAdminToViewModel(result), accessToken.SignedToken, nil
 }

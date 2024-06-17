@@ -1,36 +1,36 @@
 CREATE TABLE IF NOT EXISTS admins (
   id bigserial NOT NULL,
   uuid uuid NOT NULL UNIQUE DEFAULT gen_random_uuid(),
-  name varchar(100) NOT NULL,
-  email varchar(100) NOT NULL UNIQUE,
+  name varchar(50) NOT NULL,
+  email varchar(50) NOT NULL UNIQUE,
   password varchar NOT NULL,
   created_at timestamptz NOT NULL DEFAULT (now()),
-  updated_at timestamptz,
+  updated_at timestamptz NOT NULL DEFAULT (now()),
 
   CONSTRAINT admin__pkey PRIMARY KEY (id)
 );
 
-CREATE TABLE products (
+CREATE TABLE IF NOT EXISTS products (
   id bigserial NOT NULL,
   uuid uuid NOT NULL UNIQUE DEFAULT gen_random_uuid(),
-  name varchar(100) NOT NULL,
+  name varchar(50) NOT NULL,
   image_url varchar NOT NULL,
   admin_id bigserial NOT NULL,
   created_at timestamptz NOT NULL DEFAULT (now()),
-  updated_at timestamptz,
+  updated_at timestamptz NOT NULL DEFAULT (now()),
 
   CONSTRAINT product__pkey PRIMARY KEY (id),
   CONSTRAINT admin_id__fk FOREIGN KEY (admin_id) REFERENCES admins(id) ON DELETE CASCADE
 );
 
-CREATE TABLE variants (
+CREATE TABLE IF NOT EXISTS variants (
   id bigserial NOT NULL,
   uuid uuid NOT NULL UNIQUE DEFAULT gen_random_uuid(),
-  variant_name varchar(100) NOT NULL,
+  variant_name varchar(50) NOT NULL,
   quantity int NOT NULL,
   product_id bigserial NOT NULL,
   created_at timestamptz NOT NULL DEFAULT (now()),
-  updated_at timestamptz,
+  updated_at timestamptz NOT NULL DEFAULT (now()),
 
   CONSTRAINT variant__pkey PRIMARY KEY (id),
   CONSTRAINT product_id__fk FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
@@ -42,11 +42,11 @@ CREATE INDEX IF NOT EXISTS admin__uuid__idx ON admins USING BTREE (uuid);
 
 CREATE INDEX IF NOT EXISTS product__admin_id__idx ON products USING BTREE (admin_id);
 
-CREATE INDEX IF NOT EXISTS product__uuid__idx ON products USING BTREE (uuid);
-
-CREATE INDEX IF NOT EXISTS variant__product_id__idx ON variants USING BTREE (product_id);
+CREATE INDEX IF NOT EXISTS product__uuid__idx ON products USING BTREE (uuid) INCLUDE (id);
 
 CREATE INDEX IF NOT EXISTS variant__uuid__idx ON variants USING BTREE (uuid);
+
+CREATE INDEX IF NOT EXISTS variant__product_id__idx ON variants USING BTREE (product_id);
 
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$
@@ -70,22 +70,3 @@ CREATE TRIGGER update_variants_updated_at
 BEFORE UPDATE ON variants
 FOR EACH ROW
 EXECUTE FUNCTION update_updated_at_column();
-
-CREATE VIEW product__view AS
-SELECT 
-  p.uuid, 
-  p.name, 
-  p.image_url,
-  COALESCE(
-    json_agg(
-      json_build_object(
-        'uuid', v.uuid,
-        'variant_name', v.variant_name,
-        'quantity', v.quantity
-      )
-    ) FILTER (WHERE v.uuid IS NOT NULL), 
-    '[]'
-  ) AS variants
-FROM products p
-LEFT JOIN variants v ON p.id = v.product_id
-GROUP BY p.id;

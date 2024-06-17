@@ -22,30 +22,31 @@ func main() {
 		log.Fatalf("Init DB error: %v", err)
 	}
 
-	tokenMaker, err := token.NewJWTMaker(cfg.Token.SecretKey)
+	jwtImpl, err := token.NewJWT(cfg.Token)
 	if err != nil {
 		log.Fatalf("Couldn't create token maker: %v", err)
 	}
-
-	adminRepo := repository.NewAdminRepository(connPool)
-	authService := service.NewAuthService(adminRepo, tokenMaker, cfg.Token)
-	authHandler := handler.NewAuthHandler(authService)
 
 	cld, err := cloudinary.NewFromParams(cfg.Cloudinary.Name, cfg.Cloudinary.ApiKey, cfg.Cloudinary.ApiSecret)
 	cld.Config.URL.Secure = true
 	if err != nil {
 		log.Fatalf("Couldn't create cloudinary environment: %v", err)
 	}
+	fileRepo := repository.NewFileRepository(cld)
+
+	adminRepo := repository.NewAdminRepository(connPool)
+	authService := service.NewAuthService(adminRepo, jwtImpl)
+	authHandler := handler.NewAuthHandler(authService)
 
 	productRepo := repository.NewProductRepository(connPool)
-	productService := service.NewProductService(productRepo)
-	productHandler := handler.NewProductHandler(productService, cld)
+	productService := service.NewProductService(productRepo, fileRepo)
+	productHandler := handler.NewProductHandler(productService)
 
 	variantRepo := repository.NewVariantRepository(connPool)
 	variantService := service.NewVariantService(variantRepo)
 	variantHandler := handler.NewVariantHandler(variantService)
 
-	server := api.NewServer(tokenMaker, authHandler, productHandler, variantHandler, adminRepo)
+	server := api.NewServer(cfg.App, jwtImpl, authHandler, productHandler, variantHandler, adminRepo)
 	if err != nil {
 		log.Fatal("Couldn't create server: ", err)
 	}

@@ -9,18 +9,18 @@ import (
 
 type Store struct {
 	*Queries
-	connPool *pgxpool.Pool
+	ConnPool *pgxpool.Pool
 }
 
 func NewStore(connPool *pgxpool.Pool) *Store {
 	return &Store{
-		connPool: connPool,
+		ConnPool: connPool,
 		Queries:  New(connPool),
 	}
 }
 
 func (s *Store) ExecTx(ctx context.Context, fn func(*Queries) error) error {
-	tx, err := s.connPool.Begin(ctx)
+	tx, err := s.ConnPool.Begin(ctx)
 	if err != nil {
 		return err
 	}

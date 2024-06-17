@@ -1,178 +1,226 @@
 package handler
 
 import (
-	"basic-trade/api/middleware"
+	apiHelper "basic-trade/api/helper"
 	"basic-trade/api/request"
-	"basic-trade/api/response"
+	"basic-trade/common"
 	"basic-trade/internal/entity"
 	"basic-trade/internal/service"
 	"basic-trade/pkg/token"
-	"mime/multipart"
+	"context"
 	"net/http"
 
-	"github.com/cloudinary/cloudinary-go/v2"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
 
 type ProductHandler struct {
-	productService service.IProductService
-	fileService    service.IFileService
+	productService service.ProductService
 }
 
-func NewProductHandler(productService service.IProductService, cld *cloudinary.Cloudinary) *ProductHandler {
-	return &ProductHandler{
-		productService: productService,
-		fileService:    service.NewFileService(cld),
-	}
-}
-
-type createProductRequest struct {
-	Name  string                `form:"name" binding:"required,max=100"`
-	Image *multipart.FileHeader `form:"image" binding:"required,validImage"`
-}
-
-type updateProductRequest struct {
-	Name  string                `form:"name" binding:"max=100"`
-	Image *multipart.FileHeader `form:"image" binding:"file,image"`
+func NewProductHandler(productService service.ProductService) *ProductHandler {
+	return &ProductHandler{productService: productService}
 }
 
 func (h *ProductHandler) CreateProduct(ctx *gin.Context) {
-	var req createProductRequest
-	if err := ctx.ShouldBind(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, response.ErrorResponse(err))
-		return
-	}
+	apiHelper.ResponseHandler(ctx, func(c context.Context, resChan chan apiHelper.ResponseData) {
+		var req request.CreateProductRequest
+		if err := ctx.ShouldBind(&req); err != nil {
+			resChan <- apiHelper.ResponseData{
+				StatusCode: http.StatusBadRequest,
+				Error:      common.ErrorValidation(err),
+			}
+		}
 
-	authPayload := ctx.MustGet(middleware.AuthorizationPayloadKey).(*token.Payload)
+		jwtPayload := ctx.MustGet(token.JWTClaim).(*token.Claim)
 
-	imageURL, err := h.fileService.UploadImage(authPayload.UUID.String(), req.Image)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, response.ErrorResponse(err))
-	}
+		arg := entity.Product{Name: req.Name}
 
-	arg := entity.Product{
-		Name:     req.Name,
-		ImageURL: imageURL,
-	}
+		result, err := h.productService.CreateProduct(c, arg, jwtPayload.UserID, req.Image)
+		if err != nil {
+			resChan <- apiHelper.ResponseData{
+				StatusCode: http.StatusInternalServerError,
+				Error:      err,
+			}
+		}
 
-	result, err := h.productService.CreateProduct(arg, authPayload.UUID)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, response.ErrorResponse(err))
-	}
-
-	ctx.JSON(http.StatusOK, result)
+		resChan <- apiHelper.ResponseData{
+			StatusCode: http.StatusCreated,
+			Message:    "Product created successfully.",
+			Data:       result,
+		}
+	})
 }
 
 func (h *ProductHandler) GetProduct(ctx *gin.Context) {
-	var req request.GetDataByUUIDRequest
-	if err := ctx.ShouldBindUri(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, response.ErrorResponse(err))
-		return
-	}
+	apiHelper.ResponseHandler(ctx, func(c context.Context, resChan chan apiHelper.ResponseData) {
+		var req request.GetDataByUUIDRequest
+		if err := ctx.ShouldBindUri(&req); err != nil {
+			resChan <- apiHelper.ResponseData{
+				StatusCode: http.StatusBadRequest,
+				Error:      common.ErrorValidation(err),
+			}
+		}
 
-	uuid, err := uuid.Parse(req.UUID)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, response.ErrorResponse(err))
-		return
-	}
+		uuid, err := uuid.Parse(req.UUID)
+		if err != nil {
+			resChan <- apiHelper.ResponseData{
+				StatusCode: http.StatusBadRequest,
+				Error:      err,
+			}
+		}
 
-	result, err := h.productService.GetProduct(uuid)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, response.ErrorResponse(err))
-	}
+		result, err := h.productService.GetProduct(c, uuid)
+		if err != nil {
+			resChan <- apiHelper.ResponseData{
+				StatusCode: http.StatusInternalServerError,
+				Error:      err,
+			}
+		}
 
-	ctx.JSON(http.StatusOK, result)
+		resChan <- apiHelper.ResponseData{
+			StatusCode: http.StatusOK,
+			Message:    "Product retrieved successfully.",
+			Data:       result,
+		}
+	})
 }
 
 func (h *ProductHandler) GetAllProducts(ctx *gin.Context) {
-	var req request.PaginationRequest
-	if err := ctx.ShouldBindQuery(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, response.ErrorResponse(err))
-		return
-	}
+	apiHelper.ResponseHandler(ctx, func(c context.Context, resChan chan apiHelper.ResponseData) {
+		var req request.PaginationRequest
+		if err := ctx.ShouldBindQuery(&req); err != nil {
+			resChan <- apiHelper.ResponseData{
+				StatusCode: http.StatusBadRequest,
+				Error:      common.ErrorValidation(err),
+			}
+		}
 
-	result, err := h.productService.GetAllProducts(req.Offset, req.Limit)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, response.ErrorResponse(err))
-	}
+		result, err := h.productService.GetAllProducts(c, req.Offset, req.Limit)
+		if err != nil {
+			resChan <- apiHelper.ResponseData{
+				StatusCode: http.StatusInternalServerError,
+				Error:      err,
+			}
+		}
 
-	ctx.JSON(http.StatusOK, result)
+		resChan <- apiHelper.ResponseData{
+			StatusCode: http.StatusOK,
+			Message:    "Products retrieved successfully.",
+			Data:       result,
+		}
+	})
 }
 
 func (h *ProductHandler) SearchProducts(ctx *gin.Context) {
-	var req request.SearchRequest
-	if err := ctx.ShouldBindQuery(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, response.ErrorResponse(err))
-		return
-	}
+	apiHelper.ResponseHandler(ctx, func(c context.Context, resChan chan apiHelper.ResponseData) {
+		var req request.SearchRequest
+		if err := ctx.ShouldBindQuery(&req); err != nil {
+			resChan <- apiHelper.ResponseData{
+				StatusCode: http.StatusBadRequest,
+				Error:      common.ErrorValidation(err),
+			}
+		}
 
-	result, err := h.productService.SearchProducts(req.Keyword, req.Offset, req.Limit)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, response.ErrorResponse(err))
-	}
+		result, err := h.productService.SearchProducts(c, req.Keyword, req.Offset, req.Limit)
+		if err != nil {
+			resChan <- apiHelper.ResponseData{
+				StatusCode: http.StatusInternalServerError,
+				Error:      err,
+			}
+		}
 
-	ctx.JSON(http.StatusOK, result)
+		resChan <- apiHelper.ResponseData{
+			StatusCode: http.StatusOK,
+			Message:    "Products retrieved successfully.",
+			Data:       result,
+		}
+	})
+
 }
 
 func (h *ProductHandler) UpdateProduct(ctx *gin.Context) {
-	var idReq request.GetDataByUUIDRequest
+	apiHelper.ResponseHandler(ctx, func(c context.Context, resChan chan apiHelper.ResponseData) {
+		var idReq request.GetDataByUUIDRequest
 
-	if err := ctx.ShouldBindUri(&idReq); err != nil {
-		ctx.JSON(http.StatusBadRequest, response.ErrorResponse(err))
-		return
-	}
+		if err := ctx.ShouldBindUri(&idReq); err != nil {
+			resChan <- apiHelper.ResponseData{
+				StatusCode: http.StatusBadRequest,
+				Error:      common.ErrorValidation(err),
+			}
+		}
 
-	var productReq updateProductRequest
-	if err := ctx.ShouldBindJSON(&productReq); err != nil {
-		ctx.JSON(http.StatusBadRequest, response.ErrorResponse(err))
-		return
-	}
+		var productReq request.UpdateProductRequest
+		if err := ctx.ShouldBind(&productReq); err != nil {
+			resChan <- apiHelper.ResponseData{
+				StatusCode: http.StatusBadRequest,
+				Error:      common.ErrorValidation(err),
+			}
+		}
 
-	authPayload := ctx.MustGet(middleware.AuthorizationPayloadKey).(*token.Payload)
+		uuid, err := uuid.Parse(idReq.UUID)
+		if err != nil {
+			resChan <- apiHelper.ResponseData{
+				StatusCode: http.StatusBadRequest,
+				Error:      err,
+			}
+		}
 
-	var imageURL string
-	if productReq.Image != nil {
-		imageURL, _ = h.fileService.UploadImage(authPayload.UUID.String(), productReq.Image)
-	}
+		arg := entity.Product{
+			UUID: uuid,
+			Name: productReq.Name,
+		}
 
-	uuid, err := uuid.Parse(idReq.UUID)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, response.ErrorResponse(err))
-		return
-	}
+		jwtPayload := ctx.MustGet(token.JWTClaim).(*token.Claim)
 
-	arg := entity.Product{
-		UUID:     uuid,
-		Name:     productReq.Name,
-		ImageURL: imageURL,
-	}
+		result, err := h.productService.UpdateProduct(c, arg, jwtPayload.UserID, productReq.Image)
+		if err != nil {
+			resChan <- apiHelper.ResponseData{
+				StatusCode: http.StatusInternalServerError,
+				Error:      err,
+			}
+		}
 
-	result, err := h.productService.UpdateProduct(arg)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, response.ErrorResponse(err))
-	}
-
-	ctx.JSON(http.StatusOK, result)
+		resChan <- apiHelper.ResponseData{
+			StatusCode: http.StatusOK,
+			Message:    "Product updated successfully.",
+			Data:       result,
+		}
+	})
 }
 
 func (h *ProductHandler) DeleteProduct(ctx *gin.Context) {
-	var req request.GetDataByUUIDRequest
-	if err := ctx.ShouldBindUri(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, response.ErrorResponse(err))
-		return
-	}
+	apiHelper.ResponseHandler(ctx, func(c context.Context, resChan chan apiHelper.ResponseData) {
+		var req request.GetDataByUUIDRequest
+		if err := ctx.ShouldBindUri(&req); err != nil {
+			resChan <- apiHelper.ResponseData{
+				StatusCode: http.StatusBadRequest,
+				Error:      common.ErrorValidation(err),
+			}
+		}
 
-	uuid, err := uuid.Parse(req.UUID)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, response.ErrorResponse(err))
-		return
-	}
+		uuid, err := uuid.Parse(req.UUID)
+		if err != nil {
+			resChan <- apiHelper.ResponseData{
+				StatusCode: http.StatusBadRequest,
+				Error:      err,
+			}
+		}
 
-	err = h.productService.DeleteProduct(uuid)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, response.ErrorResponse(err))
-	}
+		jwtPayload := ctx.MustGet(token.JWTClaim).(*token.Claim)
 
-	ctx.JSON(http.StatusOK, nil)
+		err = h.productService.DeleteProduct(c, uuid, jwtPayload.UserID)
+		if err != nil {
+			resChan <- apiHelper.ResponseData{
+				StatusCode: http.StatusInternalServerError,
+				Error:      err,
+			}
+		}
+
+		resChan <- apiHelper.ResponseData{
+			StatusCode: http.StatusOK,
+			Message:    "Product deleted successfully.",
+			Data:       nil,
+		}
+	})
 }

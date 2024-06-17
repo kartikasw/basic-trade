@@ -12,5 +12,5 @@ type PaginationRequest struct {
 type SearchRequest struct {
 	Keyword string `form:"keyword" binding:"required"`
 	Limit   int32  `form:"limit" binding:"required,min=5,max=10"`
-	Offset  int32  `form:"offset" binding:"required,gt=-1"`
+	Offset  int32  `form:"offset" binding:"gt=-1"`
 }

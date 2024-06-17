@@ -24,14 +24,16 @@ func NewConfig(v *viper.Viper) Config {
 }
 
 type App struct {
-	Port int
-	Host string
+	Port    int
+	Host    string
+	Timeout time.Duration
 }
 
 func NewApp(v *viper.Viper) App {
 	return App{
-		Port: v.GetInt("app.port"),
-		Host: v.GetString("app.host"),
+		Port:    v.GetInt("app.port"),
+		Host:    v.GetString("app.host"),
+		Timeout: v.GetDuration("app.timeout"),
 	}
 }
 
@@ -60,14 +62,20 @@ func NewDatabase(v *viper.Viper) Database {
 }
 
 type Token struct {
-	SecretKey string
-	Duration  time.Duration
+	SecretKey            string
+	AccessTokenDuration  time.Duration
+	RefreshTokenDuration time.Duration
+	PublicKey            string
+	PrivateKey           string
 }
 
 func NewToken(v *viper.Viper) Token {
 	return Token{
-		SecretKey: v.GetString("token.secretKey"),
-		Duration:  v.GetDuration("token.duration"),
+		SecretKey:            v.GetString("token.secretKey"),
+		AccessTokenDuration:  v.GetDuration("token.accessTokenDuration"),
+		RefreshTokenDuration: v.GetDuration("token.refreshTokenDuration"),
+		PublicKey:            v.GetString("token.publicKey"),
+		PrivateKey:           v.GetString("token.privateKey"),
 	}
 }
 
@@ -86,6 +94,18 @@ func NewCloudinary(v *viper.Viper) Cloudinary {
 }
 
 func LoadConfig(path string) Config {
+	v := viper.New()
+	v.SetConfigFile(path)
+
+	err := v.ReadInConfig()
+	if err != nil {
+		log.Fatal("Load config error: ", err.Error())
+	}
+
+	return NewConfig(v)
+}
+
+func LoadTestConfig(path string) Config {
 	v := viper.New()
 	v.SetConfigFile(path)
 

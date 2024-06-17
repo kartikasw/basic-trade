@@ -56,9 +56,16 @@ WHERE uuid = $1
 LIMIT 1
 `
 
-func (q *Queries) GetProduct(ctx context.Context, argUuid uuid.UUID) (ProductView, error) {
+type GetProductRow struct {
+	Uuid     uuid.UUID   `json:"uuid"`
+	Name     string      `json:"name"`
+	ImageUrl string      `json:"image_url"`
+	Variants interface{} `json:"variants"`
+}
+
+func (q *Queries) GetProduct(ctx context.Context, argUuid uuid.UUID) (GetProductRow, error) {
 	row := q.db.QueryRow(ctx, getProduct, argUuid)
-	var i ProductView
+	var i GetProductRow
 	err := row.Scan(
 		&i.Uuid,
 		&i.Name,
@@ -101,8 +108,14 @@ func (q *Queries) GetProductID(ctx context.Context, argUuid uuid.UUID) (int64, e
 }
 
 const listProducts = `-- name: ListProducts :many
-SELECT uuid, name, image_url, variants FROM product__view
-WHERE (COALESCE($3::text, '') = '' OR name_search @@ to_tsquery($3::text))
+SELECT 
+    ROW_NUMBER() OVER (ORDER BY created_at DESC),
+    uuid,
+    name, 
+    image_url, 
+    variants
+FROM product__view
+WHERE $3::text = '' OR name_search @@ to_tsquery($3::text)
 LIMIT $1
 OFFSET $2
 `
@@ -113,16 +126,25 @@ type ListProductsParams struct {
 	Keyword string `json:"keyword"`
 }
 
-func (q *Queries) ListProducts(ctx context.Context, arg ListProductsParams) ([]ProductView, error) {
+type ListProductsRow struct {
+	RowNumber int64       `json:"row_number"`
+	Uuid      uuid.UUID   `json:"uuid"`
+	Name      string      `json:"name"`
+	ImageUrl  string      `json:"image_url"`
+	Variants  interface{} `json:"variants"`
+}
+
+func (q *Queries) ListProducts(ctx context.Context, arg ListProductsParams) ([]ListProductsRow, error) {
 	rows, err := q.db.Query(ctx, listProducts, arg.Limit, arg.Offset, arg.Keyword)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []ProductView{}
+	items := []ListProductsRow{}
 	for rows.Next() {
-		var i ProductView
+		var i ListProductsRow
 		if err := rows.Scan(
+			&i.RowNumber,
 			&i.Uuid,
 			&i.Name,
 			&i.ImageUrl,
