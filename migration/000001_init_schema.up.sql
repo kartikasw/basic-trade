@@ -40,9 +40,11 @@ CREATE INDEX IF NOT EXISTS admin__email__idx ON admins USING BTREE (email);
 
 CREATE INDEX IF NOT EXISTS admin__uuid__idx ON admins USING BTREE (uuid);
 
+CREATE INDEX IF NOT EXISTS product__id__idx ON products USING BTREE (id);
+
 CREATE INDEX IF NOT EXISTS product__admin_id__idx ON products USING BTREE (admin_id);
 
-CREATE INDEX IF NOT EXISTS product__uuid__idx ON products USING BTREE (uuid) INCLUDE (id);
+CREATE INDEX IF NOT EXISTS product__uuid__idx ON products USING BTREE (uuid);
 
 CREATE INDEX IF NOT EXISTS variant__uuid__idx ON variants USING BTREE (uuid);
 

@@ -62,7 +62,6 @@ func NewDatabase(v *viper.Viper) Database {
 }
 
 type Token struct {
-	SecretKey            string
 	AccessTokenDuration  time.Duration
 	RefreshTokenDuration time.Duration
 	PublicKey            string
@@ -71,7 +70,6 @@ type Token struct {
 
 func NewToken(v *viper.Viper) Token {
 	return Token{
-		SecretKey:            v.GetString("token.secretKey"),
 		AccessTokenDuration:  v.GetDuration("token.accessTokenDuration"),
 		RefreshTokenDuration: v.GetDuration("token.refreshTokenDuration"),
 		PublicKey:            v.GetString("token.publicKey"),

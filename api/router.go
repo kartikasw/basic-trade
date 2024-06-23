@@ -1,7 +1,6 @@
 package api
 
 import (
-	"basic-trade/api/middleware"
 	"basic-trade/common"
 	"basic-trade/internal/handler"
 	"basic-trade/internal/repository"
@@ -15,12 +14,12 @@ import (
 )
 
 type Server struct {
-	router         *gin.Engine
-	jwtImpl        token.JWT
+	router        *gin.Engine
+	jwtImpl       token.JWT
+	authorization AuthorizationMiddleware
 	authHandler    *handler.AuthHandler
 	productHandler *handler.ProductHandler
 	variantHandler *handler.VariantHandler
-	authorization  middleware.AuthorizationMiddleware
 }
 
 func NewServer(
@@ -36,7 +35,7 @@ func NewServer(
 		authHandler:    authHandler,
 		productHandler: productHandler,
 		variantHandler: variantHandler,
-		authorization:  *middleware.NewAuthorizationMiddleware(adminRepo),
+		authorization:  *NewAuthorizationMiddleware(adminRepo),
 	}
 
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
@@ -49,15 +48,18 @@ func NewServer(
 	return server
 }
 
+func (server *Server) Start(port string) error {
+	return server.router.Run(port)
+}
+
 func (server *Server) setupRouter(cfg config.App) {
 	router := gin.Default()
 
 	router.MaxMultipartMemory = common.MaxFileSize
 
 	formRoutes := router.Group("/").Use(
-		middleware.RateLimiter(),
-		middleware.ContentTypeValidation(),
-		middleware.Timeout(cfg.Timeout),
+		ContentTypeValidation(),
+		Timeout(cfg.Timeout),
 	)
 	{
 		formRoutes.POST("/auth/register", server.authHandler.Register)
@@ -65,10 +67,9 @@ func (server *Server) setupRouter(cfg config.App) {
 	}
 
 	authFormRoutes := router.Group("/").Use(
-		middleware.RateLimiter(),
-		middleware.ContentTypeValidation(),
-		middleware.Authentication(server.jwtImpl),
-		middleware.Timeout(cfg.Timeout),
+		ContentTypeValidation(),
+		Authentication(server.jwtImpl),
+		Timeout(cfg.Timeout),
 	)
 	{
 		authFormRoutes.POST("/products", server.productHandler.CreateProduct)
@@ -77,7 +78,7 @@ func (server *Server) setupRouter(cfg config.App) {
 		authFormRoutes.PUT("/variants/:uuid", server.authorization.VariantAuthorization(), server.variantHandler.UpdateVariant)
 	}
 
-	timeout := router.Group("/").Use(middleware.RateLimiter(), middleware.Timeout(cfg.Timeout))
+	timeout := router.Group("/").Use(Timeout(cfg.Timeout))
 	{
 		timeout.GET("/products", server.productHandler.GetAllProducts)
 		timeout.GET("/products/search", server.productHandler.SearchProducts)
@@ -88,9 +89,8 @@ func (server *Server) setupRouter(cfg config.App) {
 	}
 
 	authRoutes := router.Group("/").Use(
-		middleware.RateLimiter(),
-		middleware.Authentication(server.jwtImpl),
-		middleware.Timeout(cfg.Timeout),
+		Authentication(server.jwtImpl),
+		Timeout(cfg.Timeout),
 	)
 	{
 		authRoutes.DELETE("/products/:uuid", server.authorization.ProductAuthorization(), server.productHandler.DeleteProduct)
@@ -100,6 +100,6 @@ func (server *Server) setupRouter(cfg config.App) {
 	server.router = router
 }
 
-func (server *Server) Start(port string) error {
+func (server *Server) start(port string) error {
 	return server.router.Run(port)
 }

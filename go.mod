@@ -10,14 +10,13 @@ require (
 	github.com/go-playground/validator/v10 v10.21.0
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/golang-migrate/migrate/v4 v4.17.1
+	github.com/golang/mock v1.6.0
 	github.com/google/uuid v1.4.0
 	github.com/jackc/pgx/v5 v5.6.0
 	github.com/ory/dockertest v3.3.5+incompatible
 	github.com/spf13/viper v1.18.2
 	github.com/stretchr/testify v1.9.0
-	go.uber.org/mock v0.4.0
 	golang.org/x/crypto v0.23.0
-	golang.org/x/time v0.5.0
 )
 
 require (

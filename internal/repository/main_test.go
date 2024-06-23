@@ -28,7 +28,16 @@ var (
 const useDocker = true
 
 func TestMain(m *testing.M) {
-	cfg := config.LoadTestConfig("../../app.yaml")
+	cfg := config.Database{
+		Name:         "basic-trade-test",
+		Host:         "localhost",
+		Port:         2024,
+		Password:     "secret",
+		User:         "admin",
+		Timezone:     "Asia/Jakarta",
+		SslMode:      "disable",
+		MigrationURL: "file://../../migration",
+	}
 
 	var test int
 	if useDocker {
@@ -44,7 +53,7 @@ func TestMain(m *testing.M) {
 	os.Exit(test)
 }
 
-func setUpDocketTestEnv(cfg config.Config) {
+func setUpDocketTestEnv(cfg config.Database) {
 	var err error
 	pool, err = dockertest.NewPool("")
 	if err != nil {
@@ -58,11 +67,11 @@ func setUpDocketTestEnv(cfg config.Config) {
 
 	resource, err = pool.RunWithOptions(&dockertest.RunOptions{
 		Repository: "postgres",
-		Tag:        "latest",
+		Tag:        "16-alpine",
 		Env: []string{
-			fmt.Sprintf("POSTGRES_USER=%s", cfg.Database.User),
-			fmt.Sprintf("POSTGRES_PASSWORD=%s", cfg.Database.Password),
-			fmt.Sprintf("POSTGRES_DB=%s", cfg.Database.Name),
+			fmt.Sprintf("POSTGRES_USER=%s", cfg.User),
+			fmt.Sprintf("POSTGRES_PASSWORD=%s", cfg.Password),
+			fmt.Sprintf("POSTGRES_DB=%s", cfg.Name),
 			"listen_addresses = '*'",
 		},
 	}, func(config *docker.HostConfig) {
@@ -81,7 +90,7 @@ func setUpDocketTestEnv(cfg config.Config) {
 	if err != nil {
 		log.Fatal("Couldn't set port: ", err)
 	}
-	cfg.Database.Port = port
+	cfg.Port = port
 
 	time.Sleep(3 * time.Second)
 
@@ -107,10 +116,9 @@ func setUpDocketTestEnv(cfg config.Config) {
 	}
 }
 
-func setUpDatabase(cfg config.Config) error {
+func setUpDatabase(cfg config.Database) error {
 	var err error
-	cfg.Database.MigrationURL = "file://../../migration"
-	testDB, err = db.InitDB(cfg.Database)
+	testDB, err = db.InitDB(cfg)
 	if err != nil {
 		return err
 	}

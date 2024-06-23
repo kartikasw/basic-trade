@@ -4,7 +4,6 @@ import (
 	"basic-trade/pkg/config"
 	"crypto/rsa"
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/golang-jwt/jwt"
@@ -83,7 +82,7 @@ func (j *IJWT) createJWTToken(claim Claim, duration time.Duration) (*JWTToken, e
 func AccessTokenExpectation() Expectation {
 	return Expectation(func(parsed Claim) error {
 		if parsed.Scope != Scope(ScopeAccess) {
-			return fmt.Errorf("Expect scope %s, have: %s", ScopeAccess, parsed.Scope)
+			return fmt.Errorf("Scope %s to have %s", ScopeAccess, parsed.Scope)
 		}
 		return nil
 	})
@@ -101,7 +100,7 @@ func (j *IJWT) CreateAccessToken(usrUUID uuid.UUID) (*JWTToken, error) {
 func RefreshTokenExpectation() Expectation {
 	return Expectation(func(parsed Claim) error {
 		if parsed.Scope != ScopeRefresh {
-			return fmt.Errorf("Expect scope %s, have: %s", ScopeRefresh, parsed.Scope)
+			return fmt.Errorf("Scope %s to have %s", ScopeRefresh, parsed.Scope)
 		}
 		return nil
 	})
@@ -136,18 +135,18 @@ func (j *IJWT) VerifyToken(token string, expectations ...Expectation) (*Claim, e
 		return nil, fmt.Errorf("Couldn't ParseWithClaims: %w", err)
 	}
 
-	if c.TokenID.String() == "" {
+	if c.TokenID == (uuid.UUID{}) {
 		return nil, fmt.Errorf("Empty token_id claim")
 	}
 
-	if strings.TrimSpace(c.UserID.String()) == "" {
+	if c.UserID == (uuid.UUID{}) {
 		return nil, fmt.Errorf("Empty user_id claim")
 	}
 
-	for i, e := range expectations {
+	for _, e := range expectations {
 		err := e(*c)
 		if err != nil {
-			return nil, fmt.Errorf("Failed expectation: %d: %w", i, err)
+			return nil, fmt.Errorf("Failed expectation: %w", err)
 		}
 	}
 
