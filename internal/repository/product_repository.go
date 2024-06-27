@@ -2,6 +2,7 @@ package repository
 
 import (
 	sqlc "basic-trade/internal/repository/sqlc"
+	"fmt"
 
 	"context"
 
@@ -68,6 +69,7 @@ func (r *IProductRepository) GetProduct(ctx context.Context, uuid uuid.UUID) (sq
 }
 
 func (r *IProductRepository) GetAllProducts(ctx context.Context, arg sqlc.ListProductsParams) ([]sqlc.ListProductsRow, error) {
+	arg.Keyword = fmt.Sprintf("%s:*", arg.Keyword)
 	result, err := r.store.ListProducts(ctx, arg)
 
 	return result, err
