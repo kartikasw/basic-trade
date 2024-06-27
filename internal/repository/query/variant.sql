@@ -34,7 +34,7 @@ SELECT
     variant_name, 
     quantity 
 FROM variants
-WHERE sqlc.arg(keyword)::text = ':*' OR (sqlc.arg(keyword)::text != ':*' AND variant_name_search @@ to_tsquery(sqlc.arg(keyword)::text))
+WHERE sqlc.arg(keyword)::text = '' OR variant_name_search @@ to_tsquery(sqlc.arg(keyword)::text)
 ORDER BY created_at DESC
 LIMIT $1
 OFFSET $2;

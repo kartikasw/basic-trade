@@ -115,7 +115,7 @@ SELECT
     image_url, 
     variants
 FROM product__view
-WHERE $3::text = ':*' OR ($3::text != ':*' AND name_search @@ to_tsquery($3::text))
+WHERE $3::text = '' OR name_search @@ to_tsquery($3::text)
 LIMIT $1
 OFFSET $2
 `
