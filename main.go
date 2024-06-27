@@ -15,7 +15,7 @@ import (
 )
 
 func main() {
-	cfg := config.LoadConfig("app.yaml")
+	cfg := config.LoadConfig(".env")
 
 	connPool, err := database.InitDB(cfg.Database)
 	if err != nil {

@@ -1,6 +1,7 @@
 package config
 
 import (
+	"encoding/base64"
 	"log"
 	"time"
 
@@ -31,9 +32,9 @@ type App struct {
 
 func NewApp(v *viper.Viper) App {
 	return App{
-		Port:    v.GetInt("app.port"),
-		Host:    v.GetString("app.host"),
-		Timeout: v.GetDuration("app.timeout"),
+		Port:    v.GetInt("APP_PORT"),
+		Host:    v.GetString("APP_HOST"),
+		Timeout: v.GetDuration("APP_TIMEOUT"),
 	}
 }
 
@@ -50,14 +51,14 @@ type Database struct {
 
 func NewDatabase(v *viper.Viper) Database {
 	return Database{
-		Name:         v.GetString("database.name"),
-		Host:         v.GetString("database.host"),
-		Port:         v.GetInt("database.port"),
-		Password:     v.GetString("database.password"),
-		User:         v.GetString("database.user"),
-		Timezone:     v.GetString("database.timezone"),
-		SslMode:      v.GetString("database.sslmode"),
-		MigrationURL: v.GetString("database.migrationURL"),
+		Name:         v.GetString("DB_NAME"),
+		Host:         v.GetString("DB_HOST"),
+		Port:         v.GetInt("DB_PORT"),
+		Password:     v.GetString("DB_PASSWORD"),
+		User:         v.GetString("DB_USER"),
+		Timezone:     v.GetString("DB_TIMEZONE"),
+		SslMode:      v.GetString("DB_SSLMODE"),
+		MigrationURL: v.GetString("DB_MIGRATION_URL"),
 	}
 }
 
@@ -69,11 +70,24 @@ type Token struct {
 }
 
 func NewToken(v *viper.Viper) Token {
+	encodedPublicKey := v.GetString("TOKEN_PUBLIC_KEY")
+
+	publicKey, err := base64.StdEncoding.DecodeString(encodedPublicKey)
+	if err != nil {
+		log.Fatal("Couldn't encode public key")
+	}
+
+	encodedPrivateKey := v.GetString("TOKEN_PRIVATE_KEY")
+	privateKey, err := base64.StdEncoding.DecodeString(encodedPrivateKey)
+	if err != nil {
+		log.Fatal("Couldn't encode private key")
+	}
+
 	return Token{
-		AccessTokenDuration:  v.GetDuration("token.accessTokenDuration"),
-		RefreshTokenDuration: v.GetDuration("token.refreshTokenDuration"),
-		PublicKey:            v.GetString("token.publicKey"),
-		PrivateKey:           v.GetString("token.privateKey"),
+		AccessTokenDuration:  v.GetDuration("TOKEN_ACCESS_TOKEN_DURATION"),
+		RefreshTokenDuration: v.GetDuration("TOKEN_REFRESH_TOKEN_DURATION"),
+		PublicKey:            string(publicKey),
+		PrivateKey:           string(privateKey),
 	}
 }
 
@@ -85,9 +99,9 @@ type Cloudinary struct {
 
 func NewCloudinary(v *viper.Viper) Cloudinary {
 	return Cloudinary{
-		Name:      v.GetString("cloudinary.name"),
-		ApiKey:    v.GetString("cloudinary.apiKey"),
-		ApiSecret: v.GetString("cloudinary.apiSecret"),
+		Name:      v.GetString("CLOUDINARY_NAME"),
+		ApiKey:    v.GetString("CLOUDINARY_API_KEY"),
+		ApiSecret: v.GetString("CLOUDINARY_API_SECRET"),
 	}
 }
 
