@@ -53,6 +53,7 @@ func (server *Server) Start(port string) error {
 }
 
 func (server *Server) setupRouter(cfg config.App) {
+	gin.SetMode(cfg.GinMode)
 	router := gin.Default()
 
 	router.MaxMultipartMemory = common.MaxFileSize

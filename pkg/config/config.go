@@ -28,6 +28,7 @@ type App struct {
 	Port    int
 	Host    string
 	Timeout time.Duration
+	GinMode string
 }
 
 func NewApp(v *viper.Viper) App {
@@ -35,6 +36,7 @@ func NewApp(v *viper.Viper) App {
 		Port:    v.GetInt("APP_PORT"),
 		Host:    v.GetString("APP_HOST"),
 		Timeout: v.GetDuration("APP_TIMEOUT"),
+		GinMode: v.GetString("APP_GIN_MODE"),
 	}
 }
 
