@@ -10,6 +10,7 @@ This project is a RESTful API built with GoLang. It is designed to showcase a ba
 - Gin
 - PostgreSQL with pgx driver
 - Migrate
+- SQLC
 - Go JWT
 - Cloudinary
 - Testing purpose: testify, gomock, dockertest
@@ -27,18 +28,19 @@ This project is a RESTful API built with GoLang. It is designed to showcase a ba
 
 1. **Clone the repository:**
 
-```sh
-git clone https://github.com/kartikasw/basic-trade
-cd your-repo-name
-```
+    ```sh
+    git clone https://github.com/kartikasw/basic-trade
+    cd your-repo-name
+    ```
 
 2. **Set up the environment variables:**
 
-Create a .env file in the root directory of the project. Refer to .example.env for the content. 
+    Create a `.env` file in the root directory of the project. Refer to `.example.env` for the content. 
 
-> [!NOTES]
-> Ensure that your private key and public key are in the Base64 string format of RSA PEM keys. See [OpenSSL-RSA](https://www.openssl.org/docs/manmaster/man1/openssl-rsa.html) or any RSA Key Generator for generating these keys.
-> The Migration URL should point to the location of your migration file. In this case, it is located in the migration folder: `file://migration`.
+    > [NOTES]
+    >
+    > - Ensure that your private key and public key are in the Base64 string format of RSA PEM keys. See [OpenSSL-RSA](https://www.openssl.org/docs/manmaster/man1/openssl-rsa.html) or any RSA Key Generator for generating these keys.
+    > - The Migration URL should point to the location of your migration file. In this case, it is located in the migration folder: `file://migration`.
 
 ## API Routes
 
