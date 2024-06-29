@@ -1,0 +1,1226 @@
+{
+	"info": {
+		"_postman_id": "079f4ac5-370c-493f-8fa3-4417d61cba23",
+		"name": "Basic Trade",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Register",
+					"id": "eebf13d6-a9c3-4469-a7ce-749c7fc0be47",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "Kartika",
+									"type": "text"
+								},
+								{
+									"key": "email",
+									"value": "contact@kartika.dev",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "12345678",
+									"type": "text"
+								}
+							]
+						},
+						"url": "https://basic-trade-production.up.railway.app/auth/register"
+					},
+					"response": [
+						{
+							"id": "46626f13-5501-4937-9a52-232fc5e0854f",
+							"name": "Success",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "name",
+											"value": "User",
+											"type": "text"
+										},
+										{
+											"key": "email",
+											"value": "user@mail.com",
+											"type": "text"
+										},
+										{
+											"key": "password",
+											"value": "12345678",
+											"type": "text"
+										}
+									]
+								},
+								"url": "https://basic-trade-production.up.railway.app/auth/register"
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Length",
+									"value": "116"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 29 Jun 2024 07:35:34 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "railway-edge"
+								},
+								{
+									"key": "X-Request-Id",
+									"value": "fkZP9wBJRtikQdQwUicv2Q_1721921752"
+								}
+							],
+							"cookie": [],
+							"responseTime": null,
+							"body": "{\n    \"data\": {\n        \"name\": \"User\",\n        \"email\": \"user@mail.com\"\n    },\n    \"message\": \"Registration completed successfully.\",\n    \"result\": \"success\"\n}"
+						},
+						{
+							"id": "d4e4a4d5-4012-4186-9402-1ea0b3eee899",
+							"name": "Failed",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "name",
+											"value": "Kartika",
+											"type": "text"
+										},
+										{
+											"key": "email",
+											"value": "contact@kartika.dev",
+											"type": "text"
+										},
+										{
+											"key": "password",
+											"value": "12345678",
+											"type": "text"
+										}
+									]
+								},
+								"url": "https://basic-trade-production.up.railway.app/auth/register"
+							},
+							"status": "Internal Server Error",
+							"code": 500,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Length",
+									"value": "60"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 29 Jun 2024 07:34:32 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "railway-edge"
+								},
+								{
+									"key": "X-Request-Id",
+									"value": "kltBCeysTWCyoPwpKsR-zw_1721921752"
+								}
+							],
+							"cookie": [],
+							"responseTime": null,
+							"body": "{\n    \"message\": \"E-mail is already registered.\",\n    \"status\": \"error\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Login",
+					"id": "fde1b988-1738-4af7-b6eb-a5bd330000da",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "email",
+									"value": "contact@kartika.dev",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "12345678",
+									"type": "text"
+								}
+							]
+						},
+						"url": "https://basic-trade-production.up.railway.app/auth/login"
+					},
+					"response": [
+						{
+							"id": "63f5003f-34cc-4f3d-afa0-ae6729bb8f12",
+							"name": "Success",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "email",
+											"value": "contact@kartika.dev",
+											"type": "text"
+										},
+										{
+											"key": "password",
+											"value": "12345678",
+											"type": "text"
+										}
+									]
+								},
+								"url": "https://basic-trade-production.up.railway.app/auth/login"
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Length",
+									"value": "709"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 29 Jun 2024 07:36:03 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "railway-edge"
+								},
+								{
+									"key": "X-Request-Id",
+									"value": "gUliKd1ARj2c1V_PPzqbzQ_1721921752"
+								}
+							],
+							"cookie": [],
+							"responseTime": null,
+							"body": "{\n    \"data\": {\n        \"token\": \"eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl9pZCI6IjE5YzBhOGU2LTY3OWMtNDZkZi1iMWU3LTI4M2U1YTQ5MmMzMyIsInVzZXJfaWQiOiI5NGM5ZWU3YS02NjZmLTQwNDAtYWFlNC05MjkyODE4ZmJiODkiLCJzY29wZSI6ImFjY2VzcyIsImV4cCI6MTcxOTY0ODM2MywiaWF0IjoxNzE5NjQ2NTYzfQ.fZLwdvJGXA4v9PSxKKcBDNhkNDma34DHK7lMFHGs7_yxlcC_kBPwfigGeVW7HuvyTfYgM7PHqJSuh-3yFdIgxRejYLjuJ9e6Lix5sLpFrcd_yWCmZwPk4yirPgYnaVAnHVGhmFYV9NrsI66neSWtcUweoDYdeNpjekHUFrpwkd6NWV8WJ3M3ThLJv_dahELoOsi5bpz5mHzpEcY1cB_yHu3powe-1mlYRXc3KxJFyRwDV_GUp5dBIdc8M_BItArstS5HpiBr-36nAK6_lYqf0UIEo6maHqzsAmyXkWZGFKXIQqZmV6_JvjkJRGV73AkdDYQPWXECZGpSQc8eMjXBSw\",\n        \"admin\": {\n            \"name\": \"Kartika\",\n            \"email\": \"contact@kartika.dev\"\n        }\n    },\n    \"message\": \"Login successful.\",\n    \"result\": \"success\"\n}"
+						},
+						{
+							"id": "0bd53257-9b0f-462f-b627-2d427038ff24",
+							"name": "Failed",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "email",
+											"value": "contact@kartika.dev",
+											"type": "text"
+										},
+										{
+											"key": "password",
+											"value": "123456789",
+											"type": "text"
+										}
+									]
+								},
+								"url": "https://basic-trade-production.up.railway.app/auth/login"
+							},
+							"status": "Unauthorized",
+							"code": 401,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Length",
+									"value": "62"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 29 Jun 2024 07:37:05 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "railway-edge"
+								},
+								{
+									"key": "X-Request-Id",
+									"value": "uHUDQxn7RuKQz0Zr98ZjIA_1721921752"
+								}
+							],
+							"cookie": [],
+							"responseTime": null,
+							"body": "{\n    \"message\": \"E-mail or Password is incorrect\",\n    \"status\": \"error\"\n}"
+						}
+					]
+				}
+			],
+			"id": "b149fb17-b033-4d22-940b-ea3a4b0baa01"
+		},
+		{
+			"name": "Product",
+			"item": [
+				{
+					"name": "Create",
+					"id": "7370bf81-940b-4197-a205-ce592b835289",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl9pZCI6ImQwNzVjMTQ5LTI4ZjctNGY3NS1hNGYxLTc3ZDYzOTE3YjMxYiIsInVzZXJfaWQiOiI5NGM5ZWU3YS02NjZmLTQwNDAtYWFlNC05MjkyODE4ZmJiODkiLCJzY29wZSI6ImFjY2VzcyIsImV4cCI6MTcxOTY1OTU2NiwiaWF0IjoxNzE5NjU3NzY2fQ.T4kteq90Js5ru45PX55p_HDrYGSWpFA86yq2W1aYKz53i_yBeB5qASEWBLiLbKswEkT6LJ5ZXdG_C_BmdgxR5OXLlb3NQm3BCyUEgb7CnAHYWBTzYbAwp84qoQjsGCBXK-aPhlyj7uq7srTk4XVLYkjxKRLZRc_rQv879FwxK2vblZ_Rw_hKyi45dHFtqklbdnlWYv4dJInVVqx7wybYQ3eII1aA3axg6RckilL5VqhxsplNzN2WFBCOxJxWDbdpMtLGy4wHFW9_h18hixXjOhNFmyZ-ha0QNO0ozKYwCHkOlPgOTmSIKSi_Gi9APbsSHFFlMpVibeQbhLy9uL59hA"
+							}
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "SoundPEATS Clear True Wireless Earbuds",
+									"type": "text"
+								},
+								{
+									"key": "image",
+									"type": "file",
+									"src": "/Users/kartikasari/Downloads/cb680318-289f-4414-bbdc-b6734f861e87.jpeg"
+								}
+							]
+						},
+						"url": "https://basic-trade-production.up.railway.app/products"
+					},
+					"response": [
+						{
+							"id": "fc075034-027d-4fdb-b684-b599660ce4d7",
+							"name": "Success",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "name",
+											"value": "SoundPEATS Clear True Wireless Earbuds",
+											"type": "text"
+										},
+										{
+											"key": "image",
+											"type": "file",
+											"src": [
+												"/Users/kartikasari/Downloads/cb680318-289f-4414-bbdc-b6734f861e87.jpeg"
+											]
+										}
+									]
+								},
+								"url": "https://basic-trade-production.up.railway.app/products"
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Length",
+									"value": "291"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 29 Jun 2024 10:44:37 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "railway-edge"
+								},
+								{
+									"key": "X-Request-Id",
+									"value": "s2Nvk1TiQUW07pg5VG_dww_1721921752"
+								}
+							],
+							"cookie": [],
+							"responseTime": null,
+							"body": "{\n    \"data\": {\n        \"uuid\": \"e51d1876-ef72-422f-8119-4221ecde0169\",\n        \"name\": \"SoundPEATS Clear True Wireless Earbuds\",\n        \"image_url\": \"https://res.cloudinary.com/dszoc7p4o/image/upload/v1719657877/products/e51d1876-ef72-422f-8119-4221ecde0169.jpg\"\n    },\n    \"message\": \"Product created successfully.\",\n    \"result\": \"success\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Get",
+					"id": "1bd43243-794d-46c8-ba40-74fe2f686425",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": "https://basic-trade-production.up.railway.app/products/fa1ee100-9bd9-4b58-a25e-3fe02233e0f7"
+					},
+					"response": [
+						{
+							"id": "8ff77a77-da4d-42c5-adb9-0b9ed105bd21",
+							"name": "Success",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": "https://basic-trade-production.up.railway.app/products/fa1ee100-9bd9-4b58-a25e-3fe02233e0f7"
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Length",
+									"value": "370"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 29 Jun 2024 11:10:40 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "railway-edge"
+								},
+								{
+									"key": "X-Request-Id",
+									"value": "aNRlob2DR862AihpyQNRUQ_1721921752"
+								}
+							],
+							"cookie": [],
+							"responseTime": null,
+							"body": "{\n    \"data\": {\n        \"uuid\": \"fa1ee100-9bd9-4b58-a25e-3fe02233e0f7\",\n        \"name\": \"SoundPEATS Clear\",\n        \"image_url\": \"https://res.cloudinary.com/dszoc7p4o/image/upload/v1719659246/products/fa1ee100-9bd9-4b58-a25e-3fe02233e0f7.jpg\",\n        \"variants\": [\n            {\n                \"uuid\": \"0406fae0-292e-43e4-91d3-df863f3c2e63\",\n                \"variant_name\": \"Beige\",\n                \"quantity\": 100\n            }\n        ]\n    },\n    \"message\": \"Product retrieved successfully.\",\n    \"result\": \"success\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Get All",
+					"id": "8988d301-1ede-4236-85e6-95f982b5d2ca",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://basic-trade-production.up.railway.app/products?limit=10&offset=0",
+							"protocol": "https",
+							"host": [
+								"basic-trade-production",
+								"up",
+								"railway",
+								"app"
+							],
+							"path": [
+								"products"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "offset",
+									"value": "0"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"id": "2aff66d9-cc91-4725-bb9d-c0c05da9b35f",
+							"name": "All",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "https://basic-trade-production.up.railway.app/products?limit=10&offset=0",
+									"protocol": "https",
+									"host": [
+										"basic-trade-production",
+										"up",
+										"railway",
+										"app"
+									],
+									"path": [
+										"products"
+									],
+									"query": [
+										{
+											"key": "limit",
+											"value": "10"
+										},
+										{
+											"key": "offset",
+											"value": "0"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Length",
+									"value": "384"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 29 Jun 2024 11:21:47 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "railway-edge"
+								},
+								{
+									"key": "X-Request-Id",
+									"value": "leryjX8gSUm-xkUKHbmUSA_1721921752"
+								}
+							],
+							"cookie": [],
+							"responseTime": null,
+							"body": "{\n    \"data\": [\n        {\n            \"row_id\": 1,\n            \"uuid\": \"fa1ee100-9bd9-4b58-a25e-3fe02233e0f7\",\n            \"name\": \"SoundPEATS Clear\",\n            \"image_url\": \"https://res.cloudinary.com/dszoc7p4o/image/upload/v1719659246/products/fa1ee100-9bd9-4b58-a25e-3fe02233e0f7.jpg\",\n            \"variants\": [\n                {\n                    \"uuid\": \"3aec08c2-91c4-4668-8617-1bc0891cca87\",\n                    \"variant_name\": \"Beige\",\n                    \"quantity\": 100\n                }\n            ]\n        }\n    ],\n    \"message\": \"Products retrieved successfully.\",\n    \"result\": \"success\"\n}"
+						},
+						{
+							"id": "d232497f-41fa-4dc3-84b4-da82baf50340",
+							"name": "Search",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "https://basic-trade-production.up.railway.app/products?keyword=clear&limit=10&offset=0",
+									"protocol": "https",
+									"host": [
+										"basic-trade-production",
+										"up",
+										"railway",
+										"app"
+									],
+									"path": [
+										"products"
+									],
+									"query": [
+										{
+											"key": "keyword",
+											"value": "clear"
+										},
+										{
+											"key": "limit",
+											"value": "10"
+										},
+										{
+											"key": "offset",
+											"value": "0"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Length",
+									"value": "384"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 29 Jun 2024 11:24:15 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "railway-edge"
+								},
+								{
+									"key": "X-Request-Id",
+									"value": "D40XQMJ1T_q8CER_ToRsEw_1721921752"
+								}
+							],
+							"cookie": [],
+							"responseTime": null,
+							"body": "{\n    \"data\": [\n        {\n            \"row_id\": 1,\n            \"uuid\": \"fa1ee100-9bd9-4b58-a25e-3fe02233e0f7\",\n            \"name\": \"SoundPEATS Clear\",\n            \"image_url\": \"https://res.cloudinary.com/dszoc7p4o/image/upload/v1719659246/products/fa1ee100-9bd9-4b58-a25e-3fe02233e0f7.jpg\",\n            \"variants\": [\n                {\n                    \"uuid\": \"3aec08c2-91c4-4668-8617-1bc0891cca87\",\n                    \"variant_name\": \"Beige\",\n                    \"quantity\": 100\n                }\n            ]\n        }\n    ],\n    \"message\": \"Products retrieved successfully.\",\n    \"result\": \"success\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Update",
+					"id": "aede93f8-3307-4c92-86af-696e5a623e95",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl9pZCI6ImQwNzVjMTQ5LTI4ZjctNGY3NS1hNGYxLTc3ZDYzOTE3YjMxYiIsInVzZXJfaWQiOiI5NGM5ZWU3YS02NjZmLTQwNDAtYWFlNC05MjkyODE4ZmJiODkiLCJzY29wZSI6ImFjY2VzcyIsImV4cCI6MTcxOTY1OTU2NiwiaWF0IjoxNzE5NjU3NzY2fQ.T4kteq90Js5ru45PX55p_HDrYGSWpFA86yq2W1aYKz53i_yBeB5qASEWBLiLbKswEkT6LJ5ZXdG_C_BmdgxR5OXLlb3NQm3BCyUEgb7CnAHYWBTzYbAwp84qoQjsGCBXK-aPhlyj7uq7srTk4XVLYkjxKRLZRc_rQv879FwxK2vblZ_Rw_hKyi45dHFtqklbdnlWYv4dJInVVqx7wybYQ3eII1aA3axg6RckilL5VqhxsplNzN2WFBCOxJxWDbdpMtLGy4wHFW9_h18hixXjOhNFmyZ-ha0QNO0ozKYwCHkOlPgOTmSIKSi_Gi9APbsSHFFlMpVibeQbhLy9uL59hA"
+							}
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "SoundPEATS Clear",
+									"type": "text"
+								},
+								{
+									"key": "image",
+									"type": "file",
+									"src": "/Users/kartikasari/Downloads/cb680318-289f-4414-bbdc-b6734f861e87.jpeg"
+								}
+							]
+						},
+						"url": "https://basic-trade-production.up.railway.app/products/fa1ee100-9bd9-4b58-a25e-3fe02233e0f7"
+					},
+					"response": [
+						{
+							"id": "ec32575c-bc42-48dc-98fd-8931b7e6a4b5",
+							"name": "Success",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "name",
+											"value": "SoundPEATS Clear",
+											"type": "text"
+										},
+										{
+											"key": "image",
+											"type": "file",
+											"src": [
+												"/Users/kartikasari/Downloads/cb680318-289f-4414-bbdc-b6734f861e87.jpeg"
+											]
+										}
+									]
+								},
+								"url": "https://basic-trade-production.up.railway.app/products/fa1ee100-9bd9-4b58-a25e-3fe02233e0f7"
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Length",
+									"value": "269"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 29 Jun 2024 11:12:23 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "railway-edge"
+								},
+								{
+									"key": "X-Request-Id",
+									"value": "qlhCdH5ETdOWkBKBkbqtyg_1721921752"
+								}
+							],
+							"cookie": [],
+							"responseTime": null,
+							"body": "{\n    \"data\": {\n        \"uuid\": \"fa1ee100-9bd9-4b58-a25e-3fe02233e0f7\",\n        \"name\": \"SoundPEATS Clear\",\n        \"image_url\": \"https://res.cloudinary.com/dszoc7p4o/image/upload/v1719659246/products/fa1ee100-9bd9-4b58-a25e-3fe02233e0f7.jpg\"\n    },\n    \"message\": \"Product updated successfully.\",\n    \"result\": \"success\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Delete",
+					"id": "40d95aa3-a315-4a6f-a09d-9f69d8ca1491",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl9pZCI6ImQwNzVjMTQ5LTI4ZjctNGY3NS1hNGYxLTc3ZDYzOTE3YjMxYiIsInVzZXJfaWQiOiI5NGM5ZWU3YS02NjZmLTQwNDAtYWFlNC05MjkyODE4ZmJiODkiLCJzY29wZSI6ImFjY2VzcyIsImV4cCI6MTcxOTY1OTU2NiwiaWF0IjoxNzE5NjU3NzY2fQ.T4kteq90Js5ru45PX55p_HDrYGSWpFA86yq2W1aYKz53i_yBeB5qASEWBLiLbKswEkT6LJ5ZXdG_C_BmdgxR5OXLlb3NQm3BCyUEgb7CnAHYWBTzYbAwp84qoQjsGCBXK-aPhlyj7uq7srTk4XVLYkjxKRLZRc_rQv879FwxK2vblZ_Rw_hKyi45dHFtqklbdnlWYv4dJInVVqx7wybYQ3eII1aA3axg6RckilL5VqhxsplNzN2WFBCOxJxWDbdpMtLGy4wHFW9_h18hixXjOhNFmyZ-ha0QNO0ozKYwCHkOlPgOTmSIKSi_Gi9APbsSHFFlMpVibeQbhLy9uL59hA"
+							}
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": "https://basic-trade-production.up.railway.app/products/e51d1876-ef72-422f-8119-4221ecde0169"
+					},
+					"response": [
+						{
+							"id": "808986a0-f8af-4b85-a85c-a4cc9ae364bc",
+							"name": "Success",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [],
+								"url": "https://basic-trade-production.up.railway.app/products/e51d1876-ef72-422f-8119-4221ecde0169"
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Length",
+									"value": "62"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 29 Jun 2024 11:06:18 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "railway-edge"
+								},
+								{
+									"key": "X-Request-Id",
+									"value": "AB6Ed6_2SROcouLNynk3OA_1721921752"
+								}
+							],
+							"cookie": [],
+							"responseTime": null,
+							"body": "{\n    \"message\": \"Product deleted successfully.\",\n    \"result\": \"success\"\n}"
+						}
+					]
+				}
+			],
+			"id": "af760a86-93c7-46e1-92c5-fa464026ae39"
+		},
+		{
+			"name": "Variant",
+			"item": [
+				{
+					"name": "Create",
+					"id": "912e1b50-48b6-4cf5-8031-32ed998232d9",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl9pZCI6ImQwNzVjMTQ5LTI4ZjctNGY3NS1hNGYxLTc3ZDYzOTE3YjMxYiIsInVzZXJfaWQiOiI5NGM5ZWU3YS02NjZmLTQwNDAtYWFlNC05MjkyODE4ZmJiODkiLCJzY29wZSI6ImFjY2VzcyIsImV4cCI6MTcxOTY1OTU2NiwiaWF0IjoxNzE5NjU3NzY2fQ.T4kteq90Js5ru45PX55p_HDrYGSWpFA86yq2W1aYKz53i_yBeB5qASEWBLiLbKswEkT6LJ5ZXdG_C_BmdgxR5OXLlb3NQm3BCyUEgb7CnAHYWBTzYbAwp84qoQjsGCBXK-aPhlyj7uq7srTk4XVLYkjxKRLZRc_rQv879FwxK2vblZ_Rw_hKyi45dHFtqklbdnlWYv4dJInVVqx7wybYQ3eII1aA3axg6RckilL5VqhxsplNzN2WFBCOxJxWDbdpMtLGy4wHFW9_h18hixXjOhNFmyZ-ha0QNO0ozKYwCHkOlPgOTmSIKSi_Gi9APbsSHFFlMpVibeQbhLy9uL59hA"
+							}
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "variant_name",
+									"value": "Beige",
+									"type": "text"
+								},
+								{
+									"key": "quantity",
+									"value": "100",
+									"type": "text"
+								},
+								{
+									"key": "product_id",
+									"value": "fa1ee100-9bd9-4b58-a25e-3fe02233e0f7",
+									"type": "text"
+								}
+							]
+						},
+						"url": "https://basic-trade-production.up.railway.app/variants"
+					},
+					"response": [
+						{
+							"id": "efedd35b-bb89-4f5a-a57a-35c7866291c2",
+							"name": "Success",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "variant_name",
+											"value": "Beige",
+											"type": "text"
+										},
+										{
+											"key": "quantity",
+											"value": "100",
+											"type": "text"
+										},
+										{
+											"key": "product_id",
+											"value": "fa1ee100-9bd9-4b58-a25e-3fe02233e0f7",
+											"type": "text"
+										}
+									]
+								},
+								"url": "https://basic-trade-production.up.railway.app/variants"
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Length",
+									"value": "155"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 29 Jun 2024 11:09:42 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "railway-edge"
+								},
+								{
+									"key": "X-Request-Id",
+									"value": "ed9R4oPkT_q3eZb1vUbtag_1721921752"
+								}
+							],
+							"cookie": [],
+							"responseTime": null,
+							"body": "{\n    \"data\": {\n        \"uuid\": \"0406fae0-292e-43e4-91d3-df863f3c2e63\",\n        \"variant_name\": \"Beige\",\n        \"quantity\": 100\n    },\n    \"message\": \"Variant created successfully.\",\n    \"result\": \"success\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Get",
+					"id": "b99fc0ca-29b2-4773-96fc-d7e1bd7bf05f",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl9pZCI6ImUyNTFkMWI4LWI5YTctNGYyNi04NmQ5LTdhNTA3NjkxZDJkMSIsInVzZXJfaWQiOiI5NGM5ZWU3YS02NjZmLTQwNDAtYWFlNC05MjkyODE4ZmJiODkiLCJzY29wZSI6ImFjY2VzcyIsImV4cCI6MTcxOTY2MTQ3OCwiaWF0IjoxNzE5NjU5Njc4fQ.NA6z3Kmnh1-OCU5vtEGemeNXbdjagdT_qDOkVF3zlxEwAD7sAgu8UPB9NzR0RGrKtS4RT9tkw4RMj_LJHHccfTgm8_-ERSTAI5rzeM7w_jZvfQtLf1zyOz_mYR6jHQ4TXRKe5oOtqHZ51J_mcjBOobZKh4DIBU-u5nI-ySHZdTmebIA6MvshrAAyUqIhfrgXQQm1c5wlS_pkBMGBtc-PlA4d3yl8l9cVbELxi7rxonylLJMiDOyyPEKBS06vL0osUcPrCsvtGWiZLr7t7pIpQgG3z7GvNIb_jIEPmcvvwP7n4bNeokNWHzSBiJ2LbCdXbQ4ZwkJ-ysaZRJ112ih7rg"
+							}
+						},
+						"method": "GET",
+						"header": [],
+						"url": "https://basic-trade-production.up.railway.app/variants/0406fae0-292e-43e4-91d3-df863f3c2e63"
+					},
+					"response": [
+						{
+							"id": "6167435a-6ee8-4725-a6ce-e4a6d0824817",
+							"name": "Success",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": "https://basic-trade-production.up.railway.app/variants/0406fae0-292e-43e4-91d3-df863f3c2e63"
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Length",
+									"value": "156"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 29 Jun 2024 11:15:29 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "railway-edge"
+								},
+								{
+									"key": "X-Request-Id",
+									"value": "uJ6qXWOYTWu0VFZZBwsomA_1721921752"
+								}
+							],
+							"cookie": [],
+							"responseTime": null,
+							"body": "{\n    \"data\": {\n        \"uuid\": \"0406fae0-292e-43e4-91d3-df863f3c2e63\",\n        \"variant_name\": \"Beige\",\n        \"quantity\": 99\n    },\n    \"message\": \"Variant retrieved successfully.\",\n    \"result\": \"success\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Get All",
+					"id": "737e65e9-42bc-472d-beba-3b3c4f919ebc",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl9pZCI6ImUyNTFkMWI4LWI5YTctNGYyNi04NmQ5LTdhNTA3NjkxZDJkMSIsInVzZXJfaWQiOiI5NGM5ZWU3YS02NjZmLTQwNDAtYWFlNC05MjkyODE4ZmJiODkiLCJzY29wZSI6ImFjY2VzcyIsImV4cCI6MTcxOTY2MTQ3OCwiaWF0IjoxNzE5NjU5Njc4fQ.NA6z3Kmnh1-OCU5vtEGemeNXbdjagdT_qDOkVF3zlxEwAD7sAgu8UPB9NzR0RGrKtS4RT9tkw4RMj_LJHHccfTgm8_-ERSTAI5rzeM7w_jZvfQtLf1zyOz_mYR6jHQ4TXRKe5oOtqHZ51J_mcjBOobZKh4DIBU-u5nI-ySHZdTmebIA6MvshrAAyUqIhfrgXQQm1c5wlS_pkBMGBtc-PlA4d3yl8l9cVbELxi7rxonylLJMiDOyyPEKBS06vL0osUcPrCsvtGWiZLr7t7pIpQgG3z7GvNIb_jIEPmcvvwP7n4bNeokNWHzSBiJ2LbCdXbQ4ZwkJ-ysaZRJ112ih7rg"
+							}
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://basic-trade-production.up.railway.app/variants?limit=10&offset=0",
+							"protocol": "https",
+							"host": [
+								"basic-trade-production",
+								"up",
+								"railway",
+								"app"
+							],
+							"path": [
+								"variants"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "offset",
+									"value": "0"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"id": "86c8590c-b07c-4e33-9d5b-68a3b27ca92c",
+							"name": "All",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "https://basic-trade-production.up.railway.app/variants?limit=10&offset=0",
+									"protocol": "https",
+									"host": [
+										"basic-trade-production",
+										"up",
+										"railway",
+										"app"
+									],
+									"path": [
+										"variants"
+									],
+									"query": [
+										{
+											"key": "limit",
+											"value": "10"
+										},
+										{
+											"key": "offset",
+											"value": "0"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Length",
+									"value": "171"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 29 Jun 2024 11:25:41 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "railway-edge"
+								},
+								{
+									"key": "X-Request-Id",
+									"value": "CFCzyCU8QU2jsHpSkUDvpQ_1721921752"
+								}
+							],
+							"cookie": [],
+							"responseTime": null,
+							"body": "{\n    \"data\": [\n        {\n            \"row_id\": 1,\n            \"uuid\": \"3aec08c2-91c4-4668-8617-1bc0891cca87\",\n            \"variant_name\": \"Beige\",\n            \"quantity\": 100\n        }\n    ],\n    \"message\": \"Variants retrieved successfully.\",\n    \"result\": \"success\"\n}"
+						},
+						{
+							"id": "77c21d60-aeef-4190-82d8-fcb184c46ab7",
+							"name": "Search",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "https://basic-trade-production.up.railway.app/variants?keyword=bei&limit=10&offset=0",
+									"protocol": "https",
+									"host": [
+										"basic-trade-production",
+										"up",
+										"railway",
+										"app"
+									],
+									"path": [
+										"variants"
+									],
+									"query": [
+										{
+											"key": "keyword",
+											"value": "bei"
+										},
+										{
+											"key": "limit",
+											"value": "10"
+										},
+										{
+											"key": "offset",
+											"value": "0"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Length",
+									"value": "171"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 29 Jun 2024 11:26:50 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "railway-edge"
+								},
+								{
+									"key": "X-Request-Id",
+									"value": "tovsG3jcS2GDlmDtMuIoDg_1721921752"
+								}
+							],
+							"cookie": [],
+							"responseTime": null,
+							"body": "{\n    \"data\": [\n        {\n            \"row_id\": 1,\n            \"uuid\": \"3aec08c2-91c4-4668-8617-1bc0891cca87\",\n            \"variant_name\": \"Beige\",\n            \"quantity\": 100\n        }\n    ],\n    \"message\": \"Variants retrieved successfully.\",\n    \"result\": \"success\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Update",
+					"id": "aecd61ef-cdd8-439a-8b86-a2dd26192c43",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl9pZCI6ImUyNTFkMWI4LWI5YTctNGYyNi04NmQ5LTdhNTA3NjkxZDJkMSIsInVzZXJfaWQiOiI5NGM5ZWU3YS02NjZmLTQwNDAtYWFlNC05MjkyODE4ZmJiODkiLCJzY29wZSI6ImFjY2VzcyIsImV4cCI6MTcxOTY2MTQ3OCwiaWF0IjoxNzE5NjU5Njc4fQ.NA6z3Kmnh1-OCU5vtEGemeNXbdjagdT_qDOkVF3zlxEwAD7sAgu8UPB9NzR0RGrKtS4RT9tkw4RMj_LJHHccfTgm8_-ERSTAI5rzeM7w_jZvfQtLf1zyOz_mYR6jHQ4TXRKe5oOtqHZ51J_mcjBOobZKh4DIBU-u5nI-ySHZdTmebIA6MvshrAAyUqIhfrgXQQm1c5wlS_pkBMGBtc-PlA4d3yl8l9cVbELxi7rxonylLJMiDOyyPEKBS06vL0osUcPrCsvtGWiZLr7t7pIpQgG3z7GvNIb_jIEPmcvvwP7n4bNeokNWHzSBiJ2LbCdXbQ4ZwkJ-ysaZRJ112ih7rg"
+							}
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "variant_name",
+									"value": "Beige",
+									"type": "text"
+								},
+								{
+									"key": "quantity",
+									"value": "99",
+									"type": "text"
+								}
+							]
+						},
+						"url": "https://basic-trade-production.up.railway.app/variants/0406fae0-292e-43e4-91d3-df863f3c2e63"
+					},
+					"response": [
+						{
+							"id": "d6ff95c9-f7c3-4851-98b8-abe8844f29b5",
+							"name": "Success",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "variant_name",
+											"value": "Beige",
+											"type": "text"
+										},
+										{
+											"key": "quantity",
+											"value": "99",
+											"type": "text"
+										}
+									]
+								},
+								"url": "https://basic-trade-production.up.railway.app/variants/0406fae0-292e-43e4-91d3-df863f3c2e63"
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Length",
+									"value": "154"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 29 Jun 2024 11:14:47 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "railway-edge"
+								},
+								{
+									"key": "X-Request-Id",
+									"value": "ZJSZJaIuQyebMr76ofiIzA_1721921752"
+								}
+							],
+							"cookie": [],
+							"responseTime": null,
+							"body": "{\n    \"data\": {\n        \"uuid\": \"0406fae0-292e-43e4-91d3-df863f3c2e63\",\n        \"variant_name\": \"Beige\",\n        \"quantity\": 99\n    },\n    \"message\": \"Variant updated successfully.\",\n    \"result\": \"success\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Delete",
+					"id": "3f3c2238-011d-4fb6-9c6d-2b70b85fc84e",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": {
+								"token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl9pZCI6ImUyNTFkMWI4LWI5YTctNGYyNi04NmQ5LTdhNTA3NjkxZDJkMSIsInVzZXJfaWQiOiI5NGM5ZWU3YS02NjZmLTQwNDAtYWFlNC05MjkyODE4ZmJiODkiLCJzY29wZSI6ImFjY2VzcyIsImV4cCI6MTcxOTY2MTQ3OCwiaWF0IjoxNzE5NjU5Njc4fQ.NA6z3Kmnh1-OCU5vtEGemeNXbdjagdT_qDOkVF3zlxEwAD7sAgu8UPB9NzR0RGrKtS4RT9tkw4RMj_LJHHccfTgm8_-ERSTAI5rzeM7w_jZvfQtLf1zyOz_mYR6jHQ4TXRKe5oOtqHZ51J_mcjBOobZKh4DIBU-u5nI-ySHZdTmebIA6MvshrAAyUqIhfrgXQQm1c5wlS_pkBMGBtc-PlA4d3yl8l9cVbELxi7rxonylLJMiDOyyPEKBS06vL0osUcPrCsvtGWiZLr7t7pIpQgG3z7GvNIb_jIEPmcvvwP7n4bNeokNWHzSBiJ2LbCdXbQ4ZwkJ-ysaZRJ112ih7rg"
+							}
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": "https://basic-trade-production.up.railway.app/variants/0406fae0-292e-43e4-91d3-df863f3c2e63"
+					},
+					"response": [
+						{
+							"id": "09cc3283-f042-430d-8807-2485910a918c",
+							"name": "Success",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [],
+								"url": "https://basic-trade-production.up.railway.app/variants/0406fae0-292e-43e4-91d3-df863f3c2e63"
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Length",
+									"value": "63"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Sat, 29 Jun 2024 11:16:13 GMT"
+								},
+								{
+									"key": "Server",
+									"value": "railway-edge"
+								},
+								{
+									"key": "X-Request-Id",
+									"value": "dMTN5J7lR-eGfMuin_rkuQ_1721921752"
+								}
+							],
+							"cookie": [],
+							"responseTime": null,
+							"body": "{\n    \"message\": \"Variants deleted successfully.\",\n    \"result\": \"success\"\n}"
+						}
+					]
+				}
+			],
+			"id": "2a626c38-cb8c-47e9-909d-ef9d3ff77d17"
+		}
+	],
+	"variable": [
+		{
+			"key": "url",
+			"value": "localhost:8080"
+		}
+	]
+}
