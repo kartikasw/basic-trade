@@ -171,9 +171,7 @@ func (h *ProductHandler) UpdateProduct(ctx *gin.Context) {
 			Name: productReq.Name,
 		}
 
-		jwtPayload := ctx.MustGet(token.JWTClaim).(*token.Claim)
-
-		result, err := h.productService.UpdateProduct(c, arg, jwtPayload.UserID, productReq.Image)
+		result, err := h.productService.UpdateProduct(c, arg, productReq.Image)
 		if err != nil {
 			resChan <- apiHelper.ResponseData{
 				StatusCode: http.StatusInternalServerError,
@@ -207,9 +205,7 @@ func (h *ProductHandler) DeleteProduct(ctx *gin.Context) {
 			}
 		}
 
-		jwtPayload := ctx.MustGet(token.JWTClaim).(*token.Claim)
-
-		err = h.productService.DeleteProduct(c, uuid, jwtPayload.UserID)
+		err = h.productService.DeleteProduct(c, uuid)
 		if err != nil {
 			resChan <- apiHelper.ResponseData{
 				StatusCode: http.StatusInternalServerError,

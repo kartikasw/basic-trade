@@ -16,7 +16,7 @@ func createRandomProduct(t *testing.T, ctx context.Context, adminUUID uuid.UUID,
 		Name: common.RandomName(),
 	}
 
-	product, err := testProductRepo.CreateProduct(ctx, arg, adminUUID, func() (string, error) {
+	product, err := testProductRepo.CreateProduct(ctx, arg, adminUUID, func(prdUUID uuid.UUID) (string, error) {
 		return common.RandomString(6), nil
 	})
 

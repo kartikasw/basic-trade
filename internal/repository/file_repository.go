@@ -14,7 +14,7 @@ type IFileRepository struct {
 	cld *cloudinary.Cloudinary
 }
 
-// How to test: 
+// How to test:
 // https://github.com/cloudinary/cloudinary-go/blob/main/api/admin/asset_acceptance_test.go
 type FileRepository interface {
 	UploadImage(ctx context.Context, publicID string, image *multipart.FileHeader) (string, error)
@@ -52,8 +52,8 @@ func (s *IFileRepository) DeleteImage(ctx context.Context, publicID string) erro
 	_, err := s.cld.Upload.Destroy(
 		ctx,
 		uploader.DestroyParams{
-			PublicID:     publicID,
-			ResourceType: "image",
+			PublicID:   publicID,
+			Invalidate: api.Bool(true),
 		},
 	)
 

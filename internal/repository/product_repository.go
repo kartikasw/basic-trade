@@ -15,7 +15,7 @@ type IProductRepository struct {
 }
 
 type ProductRepository interface {
-	CreateProduct(ctx context.Context, arg sqlc.CreateProductParams, admUUID uuid.UUID, uplImage func() (string, error)) (sqlc.CreateProductRow, error)
+	CreateProduct(ctx context.Context, arg sqlc.CreateProductParams, admUUID uuid.UUID, uplImage func(prdUUID uuid.UUID) (string, error)) (sqlc.CreateProductRow, error)
 	GetProduct(ctx context.Context, uuid uuid.UUID) (sqlc.GetProductRow, error)
 	GetAllProducts(ctx context.Context, arg sqlc.ListProductsParams) ([]sqlc.ListProductsRow, error)
 	UpdateProduct(ctx context.Context, arg sqlc.UpdateAProductParams, uplImage func() (string, error)) (sqlc.UpdateAProductRow, error)
@@ -30,7 +30,7 @@ func (r *IProductRepository) CreateProduct(
 	ctx context.Context,
 	arg sqlc.CreateProductParams,
 	admUUID uuid.UUID,
-	uplImage func() (string, error),
+	uplImage func(prdUUID uuid.UUID) (string, error),
 ) (sqlc.CreateProductRow, error) {
 	var result sqlc.CreateProductRow
 
@@ -44,16 +44,31 @@ func (r *IProductRepository) CreateProduct(
 			return err
 		}
 
-		imageURL, err := uplImage()
+		arg.AdminID = admin.ID
+		result, err = r.store.CreateProduct(ctx, arg)
 		if err != nil {
 			return err
 		}
 
-		arg.AdminID = admin.ID
-		arg.ImageUrl = imageURL
-		result, err = r.store.CreateProduct(ctx, arg)
+		imageURL, err := uplImage(result.Uuid)
 		if err != nil {
 			return err
+		}
+
+		updArg := sqlc.UpdateAProductParams{
+			Uuid:        result.Uuid,
+			SetImageUrl: true,
+			ImageUrl:    imageURL,
+		}
+		updRes, err := r.store.UpdateAProduct(ctx, updArg)
+		if err != nil {
+			return err
+		}
+
+		result = sqlc.CreateProductRow{
+			Uuid:     updRes.Uuid,
+			Name:     updRes.Name,
+			ImageUrl: updRes.ImageUrl,
 		}
 
 		return nil

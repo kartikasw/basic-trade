@@ -21,8 +21,8 @@ type ProductService interface {
 	GetProduct(ctx context.Context, uuid uuid.UUID) (entity.ProductView, error)
 	GetAllProducts(ctx context.Context, offset int32, limit int32) ([]entity.ProductViewList, error)
 	SearchProducts(ctx context.Context, key string, offset int32, limit int32) ([]entity.ProductViewList, error)
-	UpdateProduct(ctx context.Context, product entity.Product, admUUID uuid.UUID, image *multipart.FileHeader) (entity.Product, error)
-	DeleteProduct(ctx context.Context, prdUUID uuid.UUID, admUUID uuid.UUID) error
+	UpdateProduct(ctx context.Context, product entity.Product, image *multipart.FileHeader) (entity.Product, error)
+	DeleteProduct(ctx context.Context, prdUUID uuid.UUID) error
 }
 
 func NewProductService(productRepo repository.ProductRepository, fileRepo repository.FileRepository) ProductService {
@@ -39,8 +39,8 @@ func (s *IProductService) CreateProduct(
 		Name: product.Name,
 	}
 
-	result, err := s.productRepo.CreateProduct(ctx, arg, admUUID, func() (string, error) {
-		imageURL, err := s.fileRepo.UploadImage(ctx, admUUID.String(), image)
+	result, err := s.productRepo.CreateProduct(ctx, arg, admUUID, func(prdUUID uuid.UUID) (string, error) {
+		imageURL, err := s.fileRepo.UploadImage(ctx, prdUUID.String(), image)
 		return imageURL, err
 	})
 
@@ -90,7 +90,6 @@ func (s *IProductService) SearchProducts(ctx context.Context, key string, offset
 func (s *IProductService) UpdateProduct(
 	ctx context.Context,
 	product entity.Product,
-	admUUID uuid.UUID,
 	image *multipart.FileHeader,
 ) (entity.Product, error) {
 
@@ -103,7 +102,7 @@ func (s *IProductService) UpdateProduct(
 	if image != nil {
 		uploadFunc = func() (string, error) {
 			if image != nil {
-				imageURL, err := s.fileRepo.UploadImage(ctx, admUUID.String(), image)
+				imageURL, err := s.fileRepo.UploadImage(ctx, product.UUID.String(), image)
 				return imageURL, err
 			}
 
@@ -119,9 +118,9 @@ func (s *IProductService) UpdateProduct(
 	return entity.UpdateProductToViewModel(result), err
 }
 
-func (s *IProductService) DeleteProduct(ctx context.Context, prdUUID uuid.UUID, admUUID uuid.UUID) error {
+func (s *IProductService) DeleteProduct(ctx context.Context, prdUUID uuid.UUID) error {
 	err := s.productRepo.DeleteProduct(ctx, prdUUID, func() error {
-		return s.fileRepo.DeleteImage(ctx, admUUID.String())
+		return s.fileRepo.DeleteImage(ctx, prdUUID.String())
 	})
 
 	return err
