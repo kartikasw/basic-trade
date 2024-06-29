@@ -17,7 +17,7 @@ var AllowedImageExtensions = map[string]bool{
 
 var ValidImage validator.Func = func(fl validator.FieldLevel) bool {
 	if fileHeader, ok := fl.Field().Interface().(multipart.FileHeader); ok {
-		if fileHeader.Size > common.MaxFileSize {
+		if fileHeader.Size > common.MAX_FILE_SIZE {
 			return false
 		}
 

@@ -15,7 +15,7 @@ import (
 )
 
 func main() {
-	cfg := config.LoadConfig(".env")
+	cfg := config.LoadConfig()
 
 	connPool, err := database.InitDB(cfg.Database)
 	if err != nil {
@@ -51,7 +51,7 @@ func main() {
 		log.Fatal("Couldn't create server: ", err)
 	}
 
-	err = server.Start(fmt.Sprintf("%s:%d", cfg.App.Host, cfg.App.Port))
+	err = server.Start(fmt.Sprintf(":%s", cfg.App.Port))
 	if err != nil {
 		log.Fatal("Couldn't start server: ", err)
 	}

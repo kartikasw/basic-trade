@@ -11,7 +11,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-const DSN = "postgres://%s:%s@%s:%d/%s?sslmode=%s"
+const DSN = "postgres://%s:%s@%s:%s/%s?sslmode=%s"
 
 func InitDB(d cfg.Database) (*pgxpool.Pool, error) {
 	source := fmt.Sprintf(

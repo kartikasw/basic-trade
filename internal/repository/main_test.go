@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"strconv"
 	"testing"
 	"time"
 
@@ -31,7 +30,7 @@ func TestMain(m *testing.M) {
 	cfg := config.Database{
 		Name:         "basic-trade-test",
 		Host:         "localhost",
-		Port:         2024,
+		Port:         "2024",
 		Password:     "secret",
 		User:         "admin",
 		Timezone:     "Asia/Jakarta",
@@ -86,11 +85,7 @@ func setUpDocketTestEnv(cfg config.Database) {
 	}
 
 	rcPort := resource.GetPort("5432/tcp")
-	port, err := strconv.Atoi(rcPort)
-	if err != nil {
-		log.Fatal("Couldn't set port: ", err)
-	}
-	cfg.Port = port
+	cfg.Port = rcPort
 
 	time.Sleep(3 * time.Second)
 

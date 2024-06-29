@@ -56,7 +56,7 @@ func (server *Server) setupRouter(cfg config.App) {
 	gin.SetMode(cfg.GinMode)
 	router := gin.Default()
 
-	router.MaxMultipartMemory = common.MaxFileSize
+	router.MaxMultipartMemory = common.MAX_FILE_SIZE
 
 	formRoutes := router.Group("/").Use(
 		ContentTypeValidation(),

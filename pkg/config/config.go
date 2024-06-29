@@ -1,11 +1,13 @@
 package config
 
 import (
+	"basic-trade/common"
 	"encoding/base64"
 	"log"
+	"os"
 	"time"
 
-	"github.com/spf13/viper"
+	"github.com/joho/godotenv"
 )
 
 type Config struct {
@@ -15,35 +17,39 @@ type Config struct {
 	Cloudinary Cloudinary
 }
 
-func NewConfig(v *viper.Viper) Config {
+func NewConfig() Config {
 	return Config{
-		App:        NewApp(v),
-		Database:   NewDatabase(v),
-		Token:      NewToken(v),
-		Cloudinary: NewCloudinary(v),
+		App:        NewApp(),
+		Database:   NewDatabase(),
+		Token:      NewToken(),
+		Cloudinary: NewCloudinary(),
 	}
 }
 
 type App struct {
-	Port    int
-	Host    string
+	Port    string
 	Timeout time.Duration
 	GinMode string
 }
 
-func NewApp(v *viper.Viper) App {
+func NewApp() App {
+	timeoutStr := os.Getenv("APP_TIMEOUT")
+	timeout, err := time.ParseDuration(timeoutStr)
+	if err != nil {
+		log.Fatal("Couldn't parse Timeout")
+	}
+
 	return App{
-		Port:    v.GetInt("APP_PORT"),
-		Host:    v.GetString("APP_HOST"),
-		Timeout: v.GetDuration("APP_TIMEOUT"),
-		GinMode: v.GetString("APP_GIN_MODE"),
+		Port:    os.Getenv("PORT"),
+		Timeout: timeout,
+		GinMode: os.Getenv("APP_GIN_MODE"),
 	}
 }
 
 type Database struct {
 	Name         string
 	Host         string
-	Port         int
+	Port         string
 	Password     string
 	User         string
 	Timezone     string
@@ -51,16 +57,16 @@ type Database struct {
 	MigrationURL string
 }
 
-func NewDatabase(v *viper.Viper) Database {
+func NewDatabase() Database {
 	return Database{
-		Name:         v.GetString("DB_NAME"),
-		Host:         v.GetString("DB_HOST"),
-		Port:         v.GetInt("DB_PORT"),
-		Password:     v.GetString("DB_PASSWORD"),
-		User:         v.GetString("DB_USER"),
-		Timezone:     v.GetString("DB_TIMEZONE"),
-		SslMode:      v.GetString("DB_SSLMODE"),
-		MigrationURL: v.GetString("DB_MIGRATION_URL"),
+		Name:         os.Getenv("DB_NAME"),
+		Host:         os.Getenv("DB_HOST"),
+		Port:         os.Getenv("DB_PORT"),
+		Password:     os.Getenv("DB_PASSWORD"),
+		User:         os.Getenv("DB_USER"),
+		Timezone:     os.Getenv("DB_TIMEZONE"),
+		SslMode:      os.Getenv("DB_SSLMODE"),
+		MigrationURL: os.Getenv("DB_MIGRATION_URL"),
 	}
 }
 
@@ -71,23 +77,35 @@ type Token struct {
 	PrivateKey           string
 }
 
-func NewToken(v *viper.Viper) Token {
-	encodedPublicKey := v.GetString("TOKEN_PUBLIC_KEY")
+func NewToken() Token {
+	encodedPublicKey := os.Getenv("TOKEN_PUBLIC_KEY")
 
 	publicKey, err := base64.StdEncoding.DecodeString(encodedPublicKey)
 	if err != nil {
 		log.Fatal("Couldn't encode public key")
 	}
 
-	encodedPrivateKey := v.GetString("TOKEN_PRIVATE_KEY")
+	encodedPrivateKey := os.Getenv("TOKEN_PRIVATE_KEY")
 	privateKey, err := base64.StdEncoding.DecodeString(encodedPrivateKey)
 	if err != nil {
 		log.Fatal("Couldn't encode private key")
 	}
 
+	accessDurationStr := os.Getenv("TOKEN_ACCESS_TOKEN_DURATION")
+	accessDuration, err := time.ParseDuration(accessDurationStr)
+	if err != nil {
+		log.Fatal("Couldn't parse Access Token Duration")
+	}
+
+	refreshDurationStr := os.Getenv("TOKEN_REFRESH_TOKEN_DURATION")
+	refreshDuration, err := time.ParseDuration(refreshDurationStr)
+	if err != nil {
+		log.Fatal("Couldn't parse Access Token Duration")
+	}
+
 	return Token{
-		AccessTokenDuration:  v.GetDuration("TOKEN_ACCESS_TOKEN_DURATION"),
-		RefreshTokenDuration: v.GetDuration("TOKEN_REFRESH_TOKEN_DURATION"),
+		AccessTokenDuration:  accessDuration,
+		RefreshTokenDuration: refreshDuration,
 		PublicKey:            string(publicKey),
 		PrivateKey:           string(privateKey),
 	}
@@ -99,34 +117,21 @@ type Cloudinary struct {
 	ApiSecret string
 }
 
-func NewCloudinary(v *viper.Viper) Cloudinary {
+func NewCloudinary() Cloudinary {
 	return Cloudinary{
-		Name:      v.GetString("CLOUDINARY_NAME"),
-		ApiKey:    v.GetString("CLOUDINARY_API_KEY"),
-		ApiSecret: v.GetString("CLOUDINARY_API_SECRET"),
+		Name:      os.Getenv("CLOUDINARY_NAME"),
+		ApiKey:    os.Getenv("CLOUDINARY_API_KEY"),
+		ApiSecret: os.Getenv("CLOUDINARY_API_SECRET"),
 	}
 }
 
-func LoadConfig(path string) Config {
-	v := viper.New()
-	v.SetConfigFile(path)
-
-	err := v.ReadInConfig()
-	if err != nil {
-		log.Fatal("Load config error: ", err.Error())
+func LoadConfig() Config {
+	if common.DEVELOPMENT {
+		err := godotenv.Load()
+		if err != nil {
+			log.Fatal("Error loading .env file")
+		}
 	}
 
-	return NewConfig(v)
-}
-
-func LoadTestConfig(path string) Config {
-	v := viper.New()
-	v.SetConfigFile(path)
-
-	err := v.ReadInConfig()
-	if err != nil {
-		log.Fatal("Load config error: ", err.Error())
-	}
-
-	return NewConfig(v)
+	return NewConfig()
 }
