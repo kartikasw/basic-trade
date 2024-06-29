@@ -541,7 +541,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "https://basic-trade-production.up.railway.app/products/search?keyword=clear&limit=10&offset=0",
+									"raw": "https://basic-trade-production.up.railway.app/products?keyword=clear&limit=10&offset=0",
 									"protocol": "https",
 									"host": [
 										"basic-trade-production",
@@ -550,8 +550,7 @@
 										"app"
 									],
 									"path": [
-										"products",
-										"search"
+										"products"
 									],
 									"query": [
 										{
@@ -948,7 +947,7 @@
 					"response": [
 						{
 							"id": "86c8590c-b07c-4e33-9d5b-68a3b27ca92c",
-							"name": "Success",
+							"name": "All",
 							"originalRequest": {
 								"method": "GET",
 								"header": [],
@@ -1007,7 +1006,7 @@
 						},
 						{
 							"id": "77c21d60-aeef-4190-82d8-fcb184c46ab7",
-							"name": "Success",
+							"name": "Search",
 							"originalRequest": {
 								"method": "GET",
 								"header": [],
@@ -1070,52 +1069,6 @@
 							"body": "{\n    \"data\": [\n        {\n            \"row_id\": 1,\n            \"uuid\": \"3aec08c2-91c4-4668-8617-1bc0891cca87\",\n            \"variant_name\": \"Beige\",\n            \"quantity\": 100\n        }\n    ],\n    \"message\": \"Variants retrieved successfully.\",\n    \"result\": \"success\"\n}"
 						}
 					]
-				},
-				{
-					"name": "Search",
-					"id": "1094a444-cae7-4121-af02-6361dfa3beb8",
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": {
-								"token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl9pZCI6ImUyNTFkMWI4LWI5YTctNGYyNi04NmQ5LTdhNTA3NjkxZDJkMSIsInVzZXJfaWQiOiI5NGM5ZWU3YS02NjZmLTQwNDAtYWFlNC05MjkyODE4ZmJiODkiLCJzY29wZSI6ImFjY2VzcyIsImV4cCI6MTcxOTY2MTQ3OCwiaWF0IjoxNzE5NjU5Njc4fQ.NA6z3Kmnh1-OCU5vtEGemeNXbdjagdT_qDOkVF3zlxEwAD7sAgu8UPB9NzR0RGrKtS4RT9tkw4RMj_LJHHccfTgm8_-ERSTAI5rzeM7w_jZvfQtLf1zyOz_mYR6jHQ4TXRKe5oOtqHZ51J_mcjBOobZKh4DIBU-u5nI-ySHZdTmebIA6MvshrAAyUqIhfrgXQQm1c5wlS_pkBMGBtc-PlA4d3yl8l9cVbELxi7rxonylLJMiDOyyPEKBS06vL0osUcPrCsvtGWiZLr7t7pIpQgG3z7GvNIb_jIEPmcvvwP7n4bNeokNWHzSBiJ2LbCdXbQ4ZwkJ-ysaZRJ112ih7rg"
-							}
-						},
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "https://basic-trade-production.up.railway.app/variants/search?keyword=bei&limit=10&offset=0",
-							"protocol": "https",
-							"host": [
-								"basic-trade-production",
-								"up",
-								"railway",
-								"app"
-							],
-							"path": [
-								"variants",
-								"search"
-							],
-							"query": [
-								{
-									"key": "keyword",
-									"value": "bei"
-								},
-								{
-									"key": "limit",
-									"value": "10"
-								},
-								{
-									"key": "offset",
-									"value": "0"
-								}
-							]
-						}
-					},
-					"response": []
 				},
 				{
 					"name": "Update",
