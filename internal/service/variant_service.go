@@ -83,11 +83,11 @@ func (s *IVariantService) SearchVariants(ctx context.Context, key string, offset
 	return entity.ListVariantToViewModel(result), err
 }
 
-func (s *IVariantService) UpdateVariant(ctx context.Context, product entity.Variant) (entity.Variant, error) {
+func (s *IVariantService) UpdateVariant(ctx context.Context, variant entity.Variant) (entity.Variant, error) {
 	arg := sqlc.UpdateAVariantParams{
-		Uuid:        product.UUID,
-		VariantName: product.VariantName,
-		Quantity:    product.Quantity,
+		Uuid:        variant.UUID,
+		VariantName: variant.VariantName,
+		Quantity:    variant.Quantity,
 	}
 
 	result, err := s.variantRepo.UpdateVariant(ctx, arg)
