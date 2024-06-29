@@ -87,7 +87,7 @@ func (h *VariantHandler) GetVariant(ctx *gin.Context) {
 		}
 
 		resChan <- apiHelper.ResponseData{
-			StatusCode: http.StatusCreated,
+			StatusCode: http.StatusOK,
 			Message:    "Variant retrieved successfully.",
 			Data:       result,
 		}
@@ -113,7 +113,7 @@ func (h *VariantHandler) GetAllVariants(ctx *gin.Context) {
 		}
 
 		resChan <- apiHelper.ResponseData{
-			StatusCode: http.StatusCreated,
+			StatusCode: http.StatusOK,
 			Message:    "Variants retrieved successfully.",
 			Data:       result,
 		}
@@ -139,7 +139,7 @@ func (h *VariantHandler) SearchVariants(ctx *gin.Context) {
 		}
 
 		resChan <- apiHelper.ResponseData{
-			StatusCode: http.StatusCreated,
+			StatusCode: http.StatusOK,
 			Message:    "Variants retrieved successfully.",
 			Data:       result,
 		}
@@ -187,7 +187,7 @@ func (h *VariantHandler) UpdateVariant(ctx *gin.Context) {
 		}
 
 		resChan <- apiHelper.ResponseData{
-			StatusCode: http.StatusCreated,
+			StatusCode: http.StatusOK,
 			Message:    "Variant updated successfully.",
 			Data:       result,
 		}
@@ -221,7 +221,7 @@ func (h *VariantHandler) DeleteVariant(ctx *gin.Context) {
 		}
 
 		resChan <- apiHelper.ResponseData{
-			StatusCode: http.StatusCreated,
+			StatusCode: http.StatusOK,
 			Message:    "Variants deleted successfully.",
 			Data:       nil,
 		}
