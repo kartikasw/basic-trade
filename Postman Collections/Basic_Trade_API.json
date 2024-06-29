@@ -1011,7 +1011,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "https://basic-trade-production.up.railway.app/variants/search?keyword=bei&limit=10&offset=0",
+									"raw": "https://basic-trade-production.up.railway.app/variants?keyword=bei&limit=10&offset=0",
 									"protocol": "https",
 									"host": [
 										"basic-trade-production",
@@ -1020,8 +1020,7 @@
 										"app"
 									],
 									"path": [
-										"variants",
-										"search"
+										"variants"
 									],
 									"query": [
 										{
