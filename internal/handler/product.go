@@ -96,7 +96,7 @@ func (h *ProductHandler) GetAllProducts(ctx *gin.Context) {
 			}
 		}
 
-		result, err := h.productService.GetAllProducts(c, req.Offset, req.Limit)
+		result, err := h.productService.GetAllProducts(c, req.Keyword, req.Offset, req.Limit)
 		if err != nil {
 			resChan <- apiHelper.ResponseData{
 				StatusCode: http.StatusInternalServerError,
@@ -110,33 +110,6 @@ func (h *ProductHandler) GetAllProducts(ctx *gin.Context) {
 			Data:       result,
 		}
 	})
-}
-
-func (h *ProductHandler) SearchProducts(ctx *gin.Context) {
-	apiHelper.ResponseHandler(ctx, func(c context.Context, resChan chan apiHelper.ResponseData) {
-		var req request.SearchRequest
-		if err := ctx.ShouldBindQuery(&req); err != nil {
-			resChan <- apiHelper.ResponseData{
-				StatusCode: http.StatusBadRequest,
-				Error:      common.ErrorValidation(err),
-			}
-		}
-
-		result, err := h.productService.SearchProducts(c, req.Keyword, req.Offset, req.Limit)
-		if err != nil {
-			resChan <- apiHelper.ResponseData{
-				StatusCode: http.StatusInternalServerError,
-				Error:      err,
-			}
-		}
-
-		resChan <- apiHelper.ResponseData{
-			StatusCode: http.StatusOK,
-			Message:    "Products retrieved successfully.",
-			Data:       result,
-		}
-	})
-
 }
 
 func (h *ProductHandler) UpdateProduct(ctx *gin.Context) {

@@ -14,9 +14,9 @@ import (
 )
 
 type Server struct {
-	router        *gin.Engine
-	jwtImpl       token.JWT
-	authorization AuthorizationMiddleware
+	router         *gin.Engine
+	jwtImpl        token.JWT
+	authorization  AuthorizationMiddleware
 	authHandler    *handler.AuthHandler
 	productHandler *handler.ProductHandler
 	variantHandler *handler.VariantHandler
@@ -82,10 +82,8 @@ func (server *Server) setupRouter(cfg config.App) {
 	timeout := router.Group("/").Use(Timeout(cfg.Timeout))
 	{
 		timeout.GET("/products", server.productHandler.GetAllProducts)
-		timeout.GET("/products/search", server.productHandler.SearchProducts)
 		timeout.GET("/products/:uuid", server.productHandler.GetProduct)
 		timeout.GET("/variants", server.variantHandler.GetAllVariants)
-		timeout.GET("/variants/search", server.variantHandler.SearchVariants)
 		timeout.GET("/variants/:uuid", server.variantHandler.GetVariant)
 	}
 

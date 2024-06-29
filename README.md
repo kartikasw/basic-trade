@@ -53,12 +53,10 @@ Here is a list of existing routes available in the API:
 | POST     | /products        | Create new product            |
 | PUT      | /products/:uuid  | Update existing product       |
 | GET      | /products/:uuid  | Get product's detail          |
-| GET      | /products        | Get all products              |
-| GET      | /products/search | Search products               |
+| GET      | /products        | Get all or search products    |
 | DELETE   | /products/:uuid  | Delete existing product       |
 | POST     | /variants        | Create new variant            |
 | PUT      | /variants/:uuid  | Update existing variant       |
 | GET      | /variants/:uuid  | Get variant's detail          |
-| GET      | /variants        | Get all variants              |
-| GET      | /variants/search | Search variants               |
+| GET      | /variants        | Get all or search variants    |
 | DELETE   | /variants/:uuid  | Delete existing variant       |

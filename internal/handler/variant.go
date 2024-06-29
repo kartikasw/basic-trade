@@ -104,33 +104,7 @@ func (h *VariantHandler) GetAllVariants(ctx *gin.Context) {
 			}
 		}
 
-		result, err := h.variantService.GetAllVariants(c, req.Offset, req.Limit)
-		if err != nil {
-			resChan <- apiHelper.ResponseData{
-				StatusCode: http.StatusInternalServerError,
-				Error:      err,
-			}
-		}
-
-		resChan <- apiHelper.ResponseData{
-			StatusCode: http.StatusOK,
-			Message:    "Variants retrieved successfully.",
-			Data:       result,
-		}
-	})
-}
-
-func (h *VariantHandler) SearchVariants(ctx *gin.Context) {
-	apiHelper.ResponseHandler(ctx, func(c context.Context, resChan chan apiHelper.ResponseData) {
-		var req request.SearchRequest
-		if err := ctx.ShouldBindQuery(&req); err != nil {
-			resChan <- apiHelper.ResponseData{
-				StatusCode: http.StatusBadRequest,
-				Error:      common.ErrorValidation(err),
-			}
-		}
-
-		result, err := h.variantService.SearchVariants(c, req.Keyword, req.Offset, req.Limit)
+		result, err := h.variantService.GetAllVariants(c, req.Keyword, req.Offset, req.Limit)
 		if err != nil {
 			resChan <- apiHelper.ResponseData{
 				StatusCode: http.StatusInternalServerError,

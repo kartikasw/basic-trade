@@ -17,8 +17,7 @@ type IVariantService struct {
 type VariantService interface {
 	CreateVariant(ctx context.Context, variant entity.Variant, uuidPrd uuid.UUID) (entity.Variant, error)
 	GetVariant(ctx context.Context, uuid uuid.UUID) (entity.Variant, error)
-	GetAllVariants(ctx context.Context, offset int32, limit int32) ([]entity.VariantViewList, error)
-	SearchVariants(ctx context.Context, key string, offset int32, limit int32) ([]entity.VariantViewList, error)
+	GetAllVariants(ctx context.Context, key string, offset int32, limit int32) ([]entity.VariantViewList, error)
 	UpdateVariant(ctx context.Context, variant entity.Variant) (entity.Variant, error)
 	DeleteVariant(ctx context.Context, uuid uuid.UUID) error
 }
@@ -54,21 +53,7 @@ func (s *IVariantService) GetVariant(ctx context.Context, uuid uuid.UUID) (entit
 	return entity.GetVariantToViewModel(result), err
 }
 
-func (s *IVariantService) GetAllVariants(ctx context.Context, offset int32, limit int32) ([]entity.VariantViewList, error) {
-	arg := sqlc.ListVariantsParams{
-		Limit:  limit,
-		Offset: offset,
-	}
-
-	result, err := s.variantRepo.GetAllVariants(ctx, arg)
-	if err != nil {
-		return []entity.VariantViewList{}, err
-	}
-
-	return entity.ListVariantToViewModel(result), err
-}
-
-func (s *IVariantService) SearchVariants(ctx context.Context, key string, offset int32, limit int32) ([]entity.VariantViewList, error) {
+func (s *IVariantService) GetAllVariants(ctx context.Context, key string, offset int32, limit int32) ([]entity.VariantViewList, error) {
 	arg := sqlc.ListVariantsParams{
 		Keyword: key,
 		Limit:   limit,

@@ -5,12 +5,7 @@ type GetDataByUUIDRequest struct {
 }
 
 type PaginationRequest struct {
-	Limit  int32 `form:"limit" binding:"required,min=5,max=10"`
-	Offset int32 `form:"offset" binding:"gt=-1"`
-}
-
-type SearchRequest struct {
-	Keyword string `form:"keyword" binding:"required"`
+	Keyword string `form:"keyword"`
 	Limit   int32  `form:"limit" binding:"required,min=5,max=10"`
 	Offset  int32  `form:"offset" binding:"gt=-1"`
 }
