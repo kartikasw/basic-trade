@@ -40,7 +40,7 @@ Create a .env file in the root directory of the project. Refer to .example.env f
 Here is a list of existing routes available in the API:
 
 | Method   | URL              | Description                   |
-| -------- |:----------------:| -----------------------------:|
+| :------- |:---------------- | :---------------------------- |
 | POST     | /auth/register   | Register new account          |
 | POST     | /auth/login      | Login with registered account |
 | POST     | /products        | Create new product            |
