@@ -11,6 +11,7 @@ This project is a RESTful API built with GoLang. It is designed to showcase a ba
 - PostgreSQL with pgx driver
 - Migrate
 - Go JWT
+- Cloudinary
 - Testing purpose: testify, gomock, dockertest
 
 ## Getting Started
@@ -18,6 +19,7 @@ This project is a RESTful API built with GoLang. It is designed to showcase a ba
 ### Prerequisites
 
 - Go 1.21 or higher
+- Cloudinary
 - Docker
 - PostgreSQL
 
@@ -30,10 +32,13 @@ git clone https://github.com/kartikasw/basic-trade
 cd your-repo-name
 ```
 
-
 2. **Set up the environment variables:**
 
-Create a .env file in the root directory of the project. Refer to .example.env for the content. Ensure that your private key and public key are in the Base64 string format of RSA PEM keys.
+Create a .env file in the root directory of the project. Refer to .example.env for the content. 
+
+> [!NOTES]
+> Ensure that your private key and public key are in the Base64 string format of RSA PEM keys. See [OpenSSL-RSA](https://www.openssl.org/docs/manmaster/man1/openssl-rsa.html) or any RSA Key Generator for generating these keys.
+> The Migration URL should point to the location of your migration file. In this case, it is located in the migration folder: `file://migration`.
 
 ## API Routes
 
