@@ -9,5 +9,5 @@ type CreateProductRequest struct {
 
 type UpdateProductRequest struct {
 	Name  string                `form:"name" binding:"max=100"`
-	Image *multipart.FileHeader `form:"image" binding:"validImage"`
+	Image *multipart.FileHeader `form:"image" binding:"omitnil,validImage"`
 }
