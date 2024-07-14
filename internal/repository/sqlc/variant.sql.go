@@ -100,7 +100,7 @@ SELECT
     variant_name, 
     quantity 
 FROM variants
-WHERE $3::text = ':*' OR ($3::text != ':*' AND variant_name_search @@ to_tsquery($3::text))
+WHERE $3::text = ':*' OR ($3::text != ':*' AND variant_name_search @@ to_tsquery('simple', $3::text))
 ORDER BY created_at DESC
 LIMIT $1
 OFFSET $2

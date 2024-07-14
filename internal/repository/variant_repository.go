@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"basic-trade/common"
 	sqlc "basic-trade/internal/repository/sqlc"
 	"context"
 	"fmt"
@@ -57,7 +58,8 @@ func (r *IVariantRepository) GetVariant(ctx context.Context, uuid uuid.UUID) (sq
 }
 
 func (r *IVariantRepository) GetAllVariants(ctx context.Context, arg sqlc.ListVariantsParams) ([]sqlc.ListVariantsRow, error) {
-	arg.Keyword = fmt.Sprintf("%s:*", arg.Keyword)
+	arg.Keyword = common.FormatStrForFullTextSearch(arg.Keyword)
+	fmt.Println(arg.Keyword)
 	result, err := r.store.ListVariants(ctx, arg)
 
 	return result, err
