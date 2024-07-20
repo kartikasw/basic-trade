@@ -44,7 +44,7 @@ SELECT
     image_url, 
     variants
 FROM product__view
-WHERE sqlc.arg(keyword)::text = ':*' OR (sqlc.arg(keyword)::text != ':*' AND name_search @@ to_tsquery(sqlc.arg(keyword)::text))
+WHERE sqlc.arg(keyword)::text = ':*' OR (sqlc.arg(keyword)::text != ':*' AND name_search @@ to_tsquery('simple', sqlc.arg(keyword)::text))
 LIMIT $1
 OFFSET $2;
 
