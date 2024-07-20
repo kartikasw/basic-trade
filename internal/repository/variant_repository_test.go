@@ -64,18 +64,20 @@ func TestGetAllVariants(t *testing.T) {
 	}
 
 	arg1 := sqlc.ListVariantsParams{LimitVal: 5, OffsetVal: 0}
-	variants1, _, err := testVariantRepo.GetAllVariants(ctx, arg1)
+	variants1, total1, err := testVariantRepo.GetAllVariants(ctx, arg1)
 
 	require.NoError(t, err)
 	require.Len(t, variants1, 5)
 	require.Equal(t, variants1[0].RowNumber, int64(1))
+	require.Equal(t, total1, int64(10))
 
-	arg2 := sqlc.ListVariantsParams{LimitVal: 5, OffsetVal: 5}
+	arg2 := sqlc.ListVariantsParams{LimitVal: 5, OffsetVal: 1}
 
-	variants2, _, err := testVariantRepo.GetAllVariants(ctx, arg2)
+	variants2, total2, err := testVariantRepo.GetAllVariants(ctx, arg2)
 
 	require.NoError(t, err)
 	require.Len(t, variants2, 5)
+	require.Equal(t, total2, int64(10))
 	require.Equal(t, variants2[0].RowNumber, int64(6))
 }
 
