@@ -27,17 +27,24 @@ RETURNING uuid, variant_name, quantity, product_id;
 SELECT uuid, variant_name, quantity, product_id FROM variants
 WHERE uuid = $1 LIMIT 1;
 
+-- name: GetVariantsCount :one
+WITH total_count AS (
+    SELECT COUNT(*) AS total_count
+    FROM variants
+)
+SELECT * FROM total_count;
+
 -- name: ListVariants :many
 SELECT 
     ROW_NUMBER() OVER (ORDER BY created_at DESC),
     uuid, 
     variant_name, 
-    quantity 
+    quantity
 FROM variants
 WHERE sqlc.arg(keyword)::text = ':*' OR (sqlc.arg(keyword)::text != ':*' AND variant_name_search @@ to_tsquery('simple', sqlc.arg(keyword)::text))
 ORDER BY created_at DESC
-LIMIT $1
-OFFSET $2;
+LIMIT sqlc.arg(limit_val)::integer
+OFFSET sqlc.arg(offset_val)::integer * sqlc.arg(limit_val)::integer;
 
 -- name: DeleteVariant :exec
 DELETE FROM variants WHERE uuid = $1;

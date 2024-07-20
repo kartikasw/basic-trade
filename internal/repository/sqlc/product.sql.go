@@ -107,23 +107,39 @@ func (q *Queries) GetProductID(ctx context.Context, argUuid uuid.UUID) (int64, e
 	return id, err
 }
 
+const getProductsCount = `-- name: GetProductsCount :one
+WITH total_count AS (
+    SELECT COUNT(*) AS total_count
+    FROM product__view__admin
+)
+SELECT total_count FROM total_count
+`
+
+func (q *Queries) GetProductsCount(ctx context.Context) (int64, error) {
+	row := q.db.QueryRow(ctx, getProductsCount)
+	var total_count int64
+	err := row.Scan(&total_count)
+	return total_count, err
+}
+
 const listProducts = `-- name: ListProducts :many
 SELECT 
     ROW_NUMBER() OVER (ORDER BY created_at DESC),
     uuid,
     name, 
     image_url, 
-    variants
-FROM product__view
-WHERE $3::text = ':*' OR ($3::text != ':*' AND name_search @@ to_tsquery('simple', $3::text))
-LIMIT $1
-OFFSET $2
+    variants,
+    admin
+FROM product__view__admin pva
+WHERE $1::text = ':*' OR ($1::text != ':*' AND name_search @@ to_tsquery('simple', $1::text))
+LIMIT $3::integer
+OFFSET $2::integer * $3::integer
 `
 
 type ListProductsParams struct {
-	Limit   int32  `json:"limit"`
-	Offset  int32  `json:"offset"`
-	Keyword string `json:"keyword"`
+	Keyword   string `json:"keyword"`
+	OffsetVal int32  `json:"offset_val"`
+	LimitVal  int32  `json:"limit_val"`
 }
 
 type ListProductsRow struct {
@@ -132,10 +148,11 @@ type ListProductsRow struct {
 	Name      string      `json:"name"`
 	ImageUrl  string      `json:"image_url"`
 	Variants  interface{} `json:"variants"`
+	Admin     []byte      `json:"admin"`
 }
 
 func (q *Queries) ListProducts(ctx context.Context, arg ListProductsParams) ([]ListProductsRow, error) {
-	rows, err := q.db.Query(ctx, listProducts, arg.Limit, arg.Offset, arg.Keyword)
+	rows, err := q.db.Query(ctx, listProducts, arg.Keyword, arg.OffsetVal, arg.LimitVal)
 	if err != nil {
 		return nil, err
 	}
@@ -149,6 +166,7 @@ func (q *Queries) ListProducts(ctx context.Context, arg ListProductsParams) ([]L
 			&i.Name,
 			&i.ImageUrl,
 			&i.Variants,
+			&i.Admin,
 		); err != nil {
 			return nil, err
 		}

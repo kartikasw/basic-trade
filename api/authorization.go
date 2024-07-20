@@ -2,6 +2,7 @@ package api
 
 import (
 	apiHelper "basic-trade/api/helper"
+	"basic-trade/api/request"
 	"basic-trade/internal/repository"
 	"basic-trade/pkg/token"
 	"context"
@@ -25,11 +26,25 @@ func NewAuthorizationMiddleware(adminRepo repository.AdminRepository) *Authoriza
 	return &AuthorizationMiddleware{adminRepo: adminRepo}
 }
 
-func (a *AuthorizationMiddleware) ProductAuthorization() gin.HandlerFunc {
+// data is to determine wether to get param from the URL param or the body
+func (a *AuthorizationMiddleware) ProductAuthorization(data ...bool) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		apiHelper.ResponseHandler(ctx, func(c context.Context, resChan chan apiHelper.ResponseData) {
 			payload := ctx.MustGet(token.JWTClaim).(*token.Claim)
-			param := ctx.Param("uuid")
+
+			var param string
+			if len(data) != 0 && !data[0] {
+				var req request.VariantProductIDRequest
+				if err := ctx.ShouldBind(&req); err != nil {
+					resChan <- apiHelper.ResponseData{
+						StatusCode: http.StatusBadRequest,
+						Error:      err,
+					}
+				}
+				param = req.ProductID
+			} else {
+				param = ctx.Param("uuid")
+			}
 
 			productUUID, err := uuid.Parse(param)
 			if err != nil {

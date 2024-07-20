@@ -3,6 +3,7 @@ package entity
 import (
 	sqlc "basic-trade/internal/repository/sqlc"
 	"encoding/json"
+	"math"
 
 	"github.com/google/uuid"
 )
@@ -18,6 +19,11 @@ type VariantViewList struct {
 	UUID        uuid.UUID `json:"uuid"`
 	VariantName string    `json:"variant_name"`
 	Quantity    int32     `json:"quantity"`
+}
+
+type VariantPaginationView struct {
+	Data       []VariantViewList `json:"variants"`
+	Pagination Pagination        `json:"pagination"`
 }
 
 func VariantInterfaceToEntityList(items interface{}) []Variant {
@@ -67,7 +73,7 @@ func UpdateVariantToViewModel(variant sqlc.UpdateAVariantRow) Variant {
 	}
 }
 
-func ListVariantToViewModel(variants []sqlc.ListVariantsRow) []VariantViewList {
+func ListVariantToViewModel(variants []sqlc.ListVariantsRow, limit int32, offset int32, total int64) VariantPaginationView {
 	list := make([]VariantViewList, len(variants))
 
 	for index, item := range variants {
@@ -79,5 +85,23 @@ func ListVariantToViewModel(variants []sqlc.ListVariantsRow) []VariantViewList {
 		}
 	}
 
-	return list
+	return ListVariantsViewPaginationToModel(list, limit, offset, total)
+}
+
+func ListVariantsViewPaginationToModel(variants []VariantViewList, limit int32, offset int32, total int64) VariantPaginationView {
+	var pagination VariantPaginationView
+	var variantLen int32 = int32(len(variants))
+
+	pagination = VariantPaginationView{
+		Data: variants,
+		Pagination: Pagination{
+			Limit:    limit,
+			Offset:   offset,
+			Page:     offset + 1,
+			LastPage: int32(math.Ceil(float64(total) / float64(limit))),
+			Total:    variantLen,
+		},
+	}
+
+	return pagination
 }

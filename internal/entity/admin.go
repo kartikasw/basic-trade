@@ -13,6 +13,12 @@ type Admin struct {
 	Password string    `json:"password"`
 }
 
+type AdminProduct struct {
+	UUID  uuid.UUID `json:"uuid"`
+	Name  string    `json:"name"`
+	Email string    `json:"email"`
+}
+
 func GetAdminToViewModel(admin sqlc.GetAdminRow) Admin {
 	return Admin{
 		UUID:     admin.Uuid,

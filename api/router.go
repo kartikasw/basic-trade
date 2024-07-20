@@ -75,7 +75,7 @@ func (server *Server) setupRouter(cfg config.App) {
 	{
 		authFormRoutes.POST("/products", server.productHandler.CreateProduct)
 		authFormRoutes.PUT("/products/:uuid", server.authorization.ProductAuthorization(), server.productHandler.UpdateProduct)
-		authFormRoutes.POST("/variants", server.variantHandler.CreateVariant)
+		authFormRoutes.POST("/variants", server.authorization.ProductAuthorization(false), server.variantHandler.CreateVariant)
 		authFormRoutes.PUT("/variants/:uuid", server.authorization.VariantAuthorization(), server.variantHandler.UpdateVariant)
 	}
 

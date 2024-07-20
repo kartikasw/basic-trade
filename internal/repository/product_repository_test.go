@@ -71,15 +71,15 @@ func TestGetAllProducts(t *testing.T) {
 		createRandomProduct(t, ctx, admin.Uuid, false)
 	}
 
-	arg1 := sqlc.ListProductsParams{Limit: 5, Offset: 0}
-	products1, err := testProductRepo.GetAllProducts(ctx, arg1)
+	arg1 := sqlc.ListProductsParams{LimitVal: 5, OffsetVal: 0}
+	products1, _, err := testProductRepo.GetAllProducts(ctx, arg1)
 
 	require.NoError(t, err)
 	require.Len(t, products1, 5)
 	require.Equal(t, products1[0].RowNumber, int64(1))
 
-	arg2 := sqlc.ListProductsParams{Limit: 5, Offset: 5}
-	products2, err := testProductRepo.GetAllProducts(ctx, arg2)
+	arg2 := sqlc.ListProductsParams{LimitVal: 5, OffsetVal: 5}
+	products2, _, err := testProductRepo.GetAllProducts(ctx, arg2)
 
 	require.NoError(t, err)
 	require.Len(t, products2, 5)
@@ -135,9 +135,9 @@ func TestDeleteProduct(t *testing.T) {
 	_, err = testProductRepo.GetProduct(ctx, product.Uuid)
 	require.Error(t, err)
 
-	arg := sqlc.ListVariantsParams{Limit: 100, Offset: 0}
+	arg := sqlc.ListVariantsParams{LimitVal: 100, OffsetVal: 0}
 
-	variants, err := testVariantRepo.GetAllVariants(ctx, arg)
+	variants, _, err := testVariantRepo.GetAllVariants(ctx, arg)
 
 	require.NoError(t, err)
 	require.Len(t, variants, 0)

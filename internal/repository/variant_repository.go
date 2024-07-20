@@ -4,7 +4,6 @@ import (
 	"basic-trade/common"
 	sqlc "basic-trade/internal/repository/sqlc"
 	"context"
-	"fmt"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -17,7 +16,7 @@ type IVariantRepository struct {
 type VariantRepository interface {
 	CreateVariant(ctx context.Context, arg sqlc.CreateVariantParams, uuidPrd uuid.UUID) (sqlc.CreateVariantRow, error)
 	GetVariant(ctx context.Context, uuid uuid.UUID) (sqlc.GetVariantRow, error)
-	GetAllVariants(ctx context.Context, arg sqlc.ListVariantsParams) ([]sqlc.ListVariantsRow, error)
+	GetAllVariants(ctx context.Context, arg sqlc.ListVariantsParams) ([]sqlc.ListVariantsRow, int64, error)
 	UpdateVariant(ctx context.Context, arg sqlc.UpdateAVariantParams) (sqlc.UpdateAVariantRow, error)
 	DeleteVariant(ctx context.Context, uuid uuid.UUID) error
 }
@@ -57,12 +56,19 @@ func (r *IVariantRepository) GetVariant(ctx context.Context, uuid uuid.UUID) (sq
 	return result, err
 }
 
-func (r *IVariantRepository) GetAllVariants(ctx context.Context, arg sqlc.ListVariantsParams) ([]sqlc.ListVariantsRow, error) {
-	arg.Keyword = common.FormatStrForFullTextSearch(arg.Keyword)
-	fmt.Println(arg.Keyword)
-	result, err := r.store.ListVariants(ctx, arg)
+func (r *IVariantRepository) GetAllVariants(ctx context.Context, arg sqlc.ListVariantsParams) ([]sqlc.ListVariantsRow, int64, error) {
+	total, err := r.store.GetVariantsCount(ctx)
 
-	return result, err
+	var result []sqlc.ListVariantsRow
+
+	if err == nil && total > 0 {
+		arg.Keyword = common.FormatStrForFullTextSearch(arg.Keyword)
+		result, err = r.store.ListVariants(ctx, arg)
+
+		return result, total, nil
+	}
+
+	return result, total, err
 }
 
 func (r *IVariantRepository) UpdateVariant(ctx context.Context, arg sqlc.UpdateAVariantParams) (sqlc.UpdateAVariantRow, error) {

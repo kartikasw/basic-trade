@@ -6,6 +6,10 @@ type CreateVariantRequest struct {
 	ProductID   string `form:"product_id" binding:"required,validUUID"`
 }
 
+type VariantProductIDRequest struct {
+	ProductID string `form:"product_id" binding:"required,validUUID"`
+}
+
 type UpdateVariantRequest struct {
 	VariantName string `form:"variant_name" binding:"max=100"`
 	Quantity    int32  `form:"quantity" binding:"required"`
