@@ -6,6 +6,6 @@ type GetDataByUUIDRequest struct {
 
 type PaginationRequest struct {
 	Keyword string `form:"keyword"`
-	Limit   int32  `form:"limit" binding:"required,min=5,max=10"`
+	Limit   int32  `form:"limit" binding:"required,min=1,max=10"`
 	Offset  int32  `form:"offset" binding:"gt=-1"`
 }

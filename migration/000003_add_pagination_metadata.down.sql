@@ -1,0 +1,1 @@
+DROP VIEW IF EXISTS product__view__admin;

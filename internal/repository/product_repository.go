@@ -17,7 +17,7 @@ type IProductRepository struct {
 type ProductRepository interface {
 	CreateProduct(ctx context.Context, arg sqlc.CreateProductParams, admUUID uuid.UUID, uplImage func(prdUUID uuid.UUID) (string, error)) (sqlc.CreateProductRow, error)
 	GetProduct(ctx context.Context, uuid uuid.UUID) (sqlc.GetProductRow, error)
-	GetAllProducts(ctx context.Context, arg sqlc.ListProductsParams) ([]sqlc.ListProductsRow, error)
+	GetAllProducts(ctx context.Context, arg sqlc.ListProductsParams) ([]sqlc.ListProductsRow, int64, error)
 	UpdateProduct(ctx context.Context, arg sqlc.UpdateAProductParams, uplImage func() (string, error)) (sqlc.UpdateAProductRow, error)
 	DeleteProduct(ctx context.Context, prdUUID uuid.UUID, delImage func() error) error
 }
@@ -83,11 +83,19 @@ func (r *IProductRepository) GetProduct(ctx context.Context, uuid uuid.UUID) (sq
 	return result, err
 }
 
-func (r *IProductRepository) GetAllProducts(ctx context.Context, arg sqlc.ListProductsParams) ([]sqlc.ListProductsRow, error) {
-	arg.Keyword = common.FormatStrForFullTextSearch(arg.Keyword)
-	result, err := r.store.ListProducts(ctx, arg)
+func (r *IProductRepository) GetAllProducts(ctx context.Context, arg sqlc.ListProductsParams) ([]sqlc.ListProductsRow, int64, error) {
+	total, err := r.store.GetProductsCount(ctx)
 
-	return result, err
+	var result []sqlc.ListProductsRow
+
+	if err == nil && total > 0 {
+		arg.Keyword = common.FormatStrForFullTextSearch(arg.Keyword)
+		result, err = r.store.ListProducts(ctx, arg)
+
+		return result, total, nil
+	}
+
+	return result, total, err
 }
 
 func (r *IProductRepository) UpdateProduct(

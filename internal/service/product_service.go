@@ -19,7 +19,7 @@ type IProductService struct {
 type ProductService interface {
 	CreateProduct(ctx context.Context, product entity.Product, admUUID uuid.UUID, image *multipart.FileHeader) (entity.Product, error)
 	GetProduct(ctx context.Context, uuid uuid.UUID) (entity.ProductView, error)
-	GetAllProducts(ctx context.Context, key string, offset int32, limit int32) ([]entity.ProductViewList, error)
+	GetAllProducts(ctx context.Context, key string, offset int32, limit int32) (entity.ProductPaginationView, error)
 	UpdateProduct(ctx context.Context, product entity.Product, image *multipart.FileHeader) (entity.Product, error)
 	DeleteProduct(ctx context.Context, prdUUID uuid.UUID) error
 }
@@ -59,18 +59,18 @@ func (s *IProductService) GetProduct(ctx context.Context, uuid uuid.UUID) (entit
 	return entity.GetProductRowToViewModel(result), err
 }
 
-func (s *IProductService) GetAllProducts(ctx context.Context, key string, offset int32, limit int32) ([]entity.ProductViewList, error) {
+func (s *IProductService) GetAllProducts(ctx context.Context, key string, offset int32, limit int32) (entity.ProductPaginationView, error) {
 	arg := sqlc.ListProductsParams{
-		Keyword: key,
-		Limit:   limit,
-		Offset:  offset,
+		Keyword:   key,
+		LimitVal:  limit,
+		OffsetVal: offset,
 	}
-	result, err := s.productRepo.GetAllProducts(ctx, arg)
+	result, total, err := s.productRepo.GetAllProducts(ctx, arg)
 	if err != nil {
-		return []entity.ProductViewList{}, err
+		return entity.ProductPaginationView{}, err
 	}
 
-	return entity.ListProductsRowToViewModel(result), err
+	return entity.ListProductsRowToViewModel(result, limit, offset, total)
 }
 
 func (s *IProductService) UpdateProduct(

@@ -17,7 +17,7 @@ type IVariantService struct {
 type VariantService interface {
 	CreateVariant(ctx context.Context, variant entity.Variant, uuidPrd uuid.UUID) (entity.Variant, error)
 	GetVariant(ctx context.Context, uuid uuid.UUID) (entity.Variant, error)
-	GetAllVariants(ctx context.Context, key string, offset int32, limit int32) ([]entity.VariantViewList, error)
+	GetAllVariants(ctx context.Context, key string, offset int32, limit int32) (entity.VariantPaginationView, error)
 	UpdateVariant(ctx context.Context, variant entity.Variant) (entity.Variant, error)
 	DeleteVariant(ctx context.Context, uuid uuid.UUID) error
 }
@@ -53,19 +53,19 @@ func (s *IVariantService) GetVariant(ctx context.Context, uuid uuid.UUID) (entit
 	return entity.GetVariantToViewModel(result), err
 }
 
-func (s *IVariantService) GetAllVariants(ctx context.Context, key string, offset int32, limit int32) ([]entity.VariantViewList, error) {
+func (s *IVariantService) GetAllVariants(ctx context.Context, key string, offset int32, limit int32) (entity.VariantPaginationView, error) {
 	arg := sqlc.ListVariantsParams{
-		Keyword: key,
-		Limit:   limit,
-		Offset:  offset,
+		Keyword:   key,
+		LimitVal:  limit,
+		OffsetVal: offset,
 	}
 
-	result, err := s.variantRepo.GetAllVariants(ctx, arg)
+	result, total, err := s.variantRepo.GetAllVariants(ctx, arg)
 	if err != nil {
-		return []entity.VariantViewList{}, err
+		return entity.VariantPaginationView{}, err
 	}
 
-	return entity.ListVariantToViewModel(result), err
+	return entity.ListVariantToViewModel(result, limit, offset, total), err
 }
 
 func (s *IVariantService) UpdateVariant(ctx context.Context, variant entity.Variant) (entity.Variant, error) {

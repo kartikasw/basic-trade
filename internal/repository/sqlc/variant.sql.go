@@ -93,23 +93,38 @@ func (q *Queries) GetVariantForUpdate(ctx context.Context, argUuid uuid.UUID) (G
 	return i, err
 }
 
+const getVariantsCount = `-- name: GetVariantsCount :one
+WITH total_count AS (
+    SELECT COUNT(*) AS total_count
+    FROM variants
+)
+SELECT total_count FROM total_count
+`
+
+func (q *Queries) GetVariantsCount(ctx context.Context) (int64, error) {
+	row := q.db.QueryRow(ctx, getVariantsCount)
+	var total_count int64
+	err := row.Scan(&total_count)
+	return total_count, err
+}
+
 const listVariants = `-- name: ListVariants :many
 SELECT 
     ROW_NUMBER() OVER (ORDER BY created_at DESC),
     uuid, 
     variant_name, 
-    quantity 
+    quantity
 FROM variants
-WHERE $3::text = ':*' OR ($3::text != ':*' AND variant_name_search @@ to_tsquery('simple', $3::text))
+WHERE $1::text = ':*' OR ($1::text != ':*' AND variant_name_search @@ to_tsquery('simple', $1::text))
 ORDER BY created_at DESC
-LIMIT $1
-OFFSET $2
+LIMIT $3::integer
+OFFSET $2::integer * $3::integer
 `
 
 type ListVariantsParams struct {
-	Limit   int32  `json:"limit"`
-	Offset  int32  `json:"offset"`
-	Keyword string `json:"keyword"`
+	Keyword   string `json:"keyword"`
+	OffsetVal int32  `json:"offset_val"`
+	LimitVal  int32  `json:"limit_val"`
 }
 
 type ListVariantsRow struct {
@@ -120,7 +135,7 @@ type ListVariantsRow struct {
 }
 
 func (q *Queries) ListVariants(ctx context.Context, arg ListVariantsParams) ([]ListVariantsRow, error) {
-	rows, err := q.db.Query(ctx, listVariants, arg.Limit, arg.Offset, arg.Keyword)
+	rows, err := q.db.Query(ctx, listVariants, arg.Keyword, arg.OffsetVal, arg.LimitVal)
 	if err != nil {
 		return nil, err
 	}
